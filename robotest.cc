@@ -4,8 +4,8 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <raspicam/raspicam_cv.h>
-#include <opencv2/imgproc/imgproc.hpp>
+//#include <raspicam/raspicam_cv.h>
+//#include <opencv2/imgproc/imgproc.hpp>
 
 using namespace iRobot;
 using namespace LibSerial;
@@ -17,13 +17,16 @@ int main ()
 
   try
   {
+  /*
     raspicam::RaspiCam_Cv Camera;
     cv::Mat rgb_image, bgr_image;
     if (!Camera.open()) {
       cerr << "Error opening the camera" << endl;
       return -1;
     }
+
     cout << "Opened Camera" << endl;
+    */
     SerialStream stream (serial_loc, LibSerial::SerialStreamBuf::BAUD_57600);
     cout << "Opened Serial Stream to" << serial_loc << endl;
     this_thread::sleep_for(chrono::milliseconds(1000));
@@ -66,11 +69,13 @@ int main ()
         cout << "Wall signal " << robot.wallSignal() << endl;
 
         if (prevWallSignal == 0) {
+            /*
           Camera.grab();
           Camera.retrieve (bgr_image);
           cv::cvtColor(bgr_image, rgb_image, CV_RGB2BGR);
           cv::imwrite("irobot_image.jpg", rgb_image);
           cout << "Taking photo" << endl;
+             */
         }
       }
       prevWallSignal = wallSignal;
