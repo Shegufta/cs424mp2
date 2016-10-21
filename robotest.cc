@@ -4,7 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <raspicam/raspicam_cv.h>
+#include <raspicam/src/raspicam_cv.h>
 #include <opencv2/imgproc/imgproc.hpp>
 
 using namespace iRobot;
