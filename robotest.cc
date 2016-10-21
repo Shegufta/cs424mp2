@@ -66,20 +66,25 @@ int main ()
       
       }
       short wallSignal = robot.wallSignal();
+        cout << "Wall signal " << robot.wallSignal() << endl;
+
+        /*
       if (wallSignal > 0) {
         cout << "Wall signal " << robot.wallSignal() << endl;
 
         if (prevWallSignal == 0) {
-            /*
+
           Camera.grab();
           Camera.retrieve (bgr_image);
           cv::cvtColor(bgr_image, rgb_image, CV_RGB2BGR);
           cv::imwrite("irobot_image.jpg", rgb_image);
           cout << "Taking photo" << endl;
-             */
+
         }
       }
+        */
       prevWallSignal = wallSignal;
+        /*
       if (robot.advanceButton ())
       {
         cout << "Advance button pressed" << endl;
@@ -98,7 +103,7 @@ int main ()
               ledColor,
               Create::LED_INTENSITY_FULL);
       }
-
+*/
       // You can add more commands here.
       this_thread::sleep_for(chrono::milliseconds(100));
     }
