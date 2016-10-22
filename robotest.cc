@@ -12,55 +12,40 @@ using namespace LibSerial;
 using namespace std;
 
 
-
-
-
-void init()
-{
-    //cout << "Opened Serial Stream to" << serial_loc << endl;
-    // this_thread::sleep_for(chrono::milliseconds(1000));
-
-    //
-
-
-    // Let's stream some sensors.
-
-    sensors.push_back(Create::SENSOR_BUMPS_WHEELS_DROPS);
-    sensors.push_back(Create::SENSOR_WALL_SIGNAL);
-    sensors.push_back (Create::SENSOR_BUTTONS);
-
-    robot.sendStreamCommand (sensors);
-    cout << "Sent Stream Command" << endl;
-
-
-}
-
 int main ()
 {
-
     char serial_loc[] = "/dev/ttyUSB0";
-    SerialStream stream (serial_loc, LibSerial::SerialStreamBuf::BAUD_57600);
-    cout << "Opened Serial Stream to" << serial_loc << endl;
-    Create robot(stream);
-    cout << "Created iRobot Object" << endl;
-
-    cout <<"sendFullCommand();"<<endl;
-    robot.sendFullCommand();
-    cout << "Setting iRobot to Full Mode" << endl;
-    this_thread::sleep_for(chrono::milliseconds(1000));
-    cout << "Robot is ready" << endl;
-
-    Create::sensorPackets_t sensors;
-
-
-
-
-
 
     try
     {
-        init();
+        /*
+          raspicam::RaspiCam_Cv Camera;
+          cv::Mat rgb_image, bgr_image;
+          if (!Camera.open()) {
+            cerr << "Error opening the camera" << endl;
+            return -1;
+          }
 
+          cout << "Opened Camera" << endl;
+          */
+        SerialStream stream (serial_loc, LibSerial::SerialStreamBuf::BAUD_57600);
+        cout << "Opened Serial Stream to" << serial_loc << endl;
+        this_thread::sleep_for(chrono::milliseconds(1000));
+        Create robot(stream);
+        cout << "Created iRobot Object" << endl;
+        robot.sendFullCommand();
+        cout << "Setting iRobot to Full Mode" << endl;
+        this_thread::sleep_for(chrono::milliseconds(1000));
+        cout << "Robot is ready" << endl;
+
+        // Let's stream some sensors.
+        Create::sensorPackets_t sensors;
+        sensors.push_back(Create::SENSOR_BUMPS_WHEELS_DROPS);
+        sensors.push_back(Create::SENSOR_WALL_SIGNAL);
+        sensors.push_back (Create::SENSOR_BUTTONS);
+
+        robot.sendStreamCommand (sensors);
+        cout << "Sent Stream Command" << endl;
         // Let's turn!
         int speed = 50;
         int ledColor = Create::LED_COLOR_GREEN;
