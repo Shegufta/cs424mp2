@@ -12,19 +12,25 @@ using namespace LibSerial;
 using namespace std;
 
 #define WALL_SENSOR_MIN 4
+#define DEFAULT_BACKUP_TIME_SLOT 5
+#define DEFAULT_BACKUP_TIME_SLOT_ESCAPE 10
+#define DEFAULT_ROTATION_TIME_SLOT 5
 
 enum NAVIGATION_STATUS
 {
     NS_SEARCHING,
-    NS_ALIGNMENT,
+    NS_PRE_SURVEY,
     NS_SURVEY,
+    NS_ESCAPE_CORNER,
     NS_FOLLOW_WALL,
     NS_SEARCH_LEFT_WALL,
     NS_SEARCH_RIGHT_WALL
 };
 
 NAVIGATION_STATUS g_navigationStatus;
-///////////////////////////////////////
+int g_backupTimeSlot = 0;
+int g_rotationTimeSlot = 0;
+///////////////////////////////////////////////////////////////////////////////
 short g_wallSig_last1 = 0;
 short g_wallSig_last2 = 0;
 short g_wallSig_last3 = 0;
@@ -47,7 +53,7 @@ int ws_getAverage(short currentWallSignal)
     sum = currentWallSignal + g_wallSig_last1 + g_wallSig_last2 + g_wallSig_last3;
     return (int)sum/4.0;
 }
-////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 int main ()
 {
@@ -83,20 +89,125 @@ int main ()
         //cout << "Sent Drive Command" << endl;
 
 
-        int sleepTimeMS = 100;
+
+        int sleepTimeMS = 15;
 
         short wallSignal, prevWallSignal = 0;
+        ws_resetHistory();
+
         while (!robot.playButton ())
         {
             short wallSignal = robot.wallSignal();
 
-            switch(g_navigationStatus)
+            if(false)
+            {// check sensors... drop sensor etc
+                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+            } else
             {
-                case NS_SEARCHING:
+                switch(g_navigationStatus)
                 {
+                    case NS_SEARCHING:
+                    {
+                        if(robot.bumpLeft() )
+                        {
+                            if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN)
+                            {
+                                g_navigationStatus = NS_SURVEY;
+                                g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT;
+                            }
 
+                            else
+                            {
+                                g_navigationStatus = NS_ESCAPE_CORNER;
+                                g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT_ESCAPE;
 
-                    break;
+                            }
+
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                        }
+                        else if(robot.bumpRight())
+                        {
+                            if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN)
+                                g_navigationStatus = NS_SURVEY;
+                            else
+                                g_navigationStatus = NS_PRE_SURVEY;
+
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT;
+                        }
+                        else
+                        {
+                            robot.sendDriveCommand (speed, Create::DRIVE_STRAIGHT);
+                        }
+
+                        break;
+                    }
+
+                    case NS_ESCAPE_CORNER:
+                    {
+                        if(0 < g_backupTimeSlot)
+                        {
+                            robot.sendDriveCommand (-speed, Create::DRIVE_STRAIGHT);
+                            g_backupTimeSlot--;
+
+                            if(0 == g_backupTimeSlot)
+                            {
+                                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+                                g_rotationTimeSlot = DEFAULT_ROTATION_TIME_SLOT;
+                            }
+                        }
+
+                        if(0 < g_rotationTimeSlot)
+                        {
+                            robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+                            g_rotationTimeSlot--;
+
+                            if(0 == g_rotationTimeSlot)
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                g_navigationStatus = NS_SEARCHING;
+                            }
+                        }
+                        break;
+                    }
+
+                    case NS_PRE_SURVEY:
+                    {
+                        if(0 < g_backupTimeSlot)
+                        {
+                            robot.sendDriveCommand (-speed, Create::DRIVE_STRAIGHT);
+                            g_backupTimeSlot--;
+                        }
+                        else
+                        {
+                            robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_CLOCKWISE);
+
+                            if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN) {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                g_navigationStatus = NS_SURVEY;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    case NS_SURVEY:
+                    {// Condition: when it will enter the NS_SURVEY mode FOR THE FIRST TIME, the condition  [ws_getAverage(wallSignal) < WALL_SENSOR_MIN)] will be true
+                        if(0 < g_backupTimeSlot)
+                        {
+                            robot.sendDriveCommand (-speed, Create::DRIVE_STRAIGHT);
+                            g_backupTimeSlot--;
+                        }
+                        else
+                        {
+
+                        }
+
+                        break;
+                    }
+
                 }
 
             }
@@ -104,6 +215,12 @@ int main ()
 
 
 
+            ws_appendHistory(wallSignal);
+
+
+
+
+            /*
             robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
             if(robot.bumpLeft())
@@ -117,6 +234,7 @@ int main ()
                 if((sleepTimeMS + 10)<2000)
                     sleepTimeMS += 10;
             }
+            */
 
             cout << "Wall signal " << robot.wallSignal() << "     sleep time "<<sleepTimeMS<< endl;
 
