@@ -4,8 +4,13 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <climits>
 //#include <raspicam/raspicam_cv.h>
 //#include <opencv2/imgproc/imgproc.hpp>
+
+
+//SHRT_MIN   = minimum value for a short
+//SHRT_MAX   = maximum value for a short
 
 using namespace iRobot;
 using namespace LibSerial;
@@ -20,6 +25,7 @@ using namespace std;
 #define MAX_SURVEY_DATA 1000
 
 
+/*
 class SurveyData
 {
 public:
@@ -38,7 +44,7 @@ public:
 
 
 };
-
+*/
 enum NAVIGATION_STATUS
 {
     NS_SEARCHING,
