@@ -47,7 +47,7 @@ int main ()
     robot.sendStreamCommand (sensors);
     cout << "Sent Stream Command" << endl;
     // Let's turn!
-    int speed = 200;
+    int speed = 100;
     int ledColor = Create::LED_COLOR_GREEN;
     robot.sendDriveCommand (speed, Create::DRIVE_STRAIGHT);
     robot.sendLedCommand (Create::LED_PLAY, 0, 0);
