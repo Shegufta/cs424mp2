@@ -16,12 +16,35 @@ using namespace std;
 #define DEFAULT_BACKUP_TIME_SLOT_ESCAPE 10
 #define DEFAULT_ROTATION_TIME_SLOT 5
 
+
+#define MAX_SURVEY_DATA 1000
+
+
+class SurveyData
+{
+public:
+    short wallSensorArray[MAX_SURVEY_DATA];
+    short
+
+    SurveyData()
+    {
+
+    }
+
+    void storeSurveyData(short wallSensor)
+    {
+
+    }
+
+
+};
+
 enum NAVIGATION_STATUS
 {
     NS_SEARCHING,
     NS_PRE_SURVEY,
     NS_SURVEY,
-    NS_END_SURVEY_ALIGN,
+    NS_ALIGN,
     NS_ESCAPE_CORNER,
     NS_FOLLOW_WALL,
     NS_SEARCH_LEFT_WALL,
@@ -32,6 +55,7 @@ NAVIGATION_STATUS g_navigationStatus;
 int g_backupTimeSlot = 0;
 int g_rotationTimeSlot = 0;
 bool g_NS_SURVEY_ISwallAvgHighValueSeen = false;
+bool g_NS_ALIGN_IsRotateClockWise = true;
 ///////////////////////////////////////////////////////////////////////////////
 short g_wallSig_last1 = 0;
 short g_wallSig_last2 = 0;
@@ -221,7 +245,8 @@ int main ()
                             {
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                g_navigationStatus = NS_END_SURVEY_ALIGN;
+                                g_NS_ALIGN_IsRotateClockWise = true;
+                                g_navigationStatus = NS_ALIGN;
                             }
                             else
                             {
@@ -230,6 +255,10 @@ int main ()
                         }
 
                         break;
+                    }
+                    case NS_ALIGN:
+                    {
+
                     }
 
                 }
