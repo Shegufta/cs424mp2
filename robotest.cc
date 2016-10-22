@@ -48,6 +48,7 @@ int main ()
 
     try
     {
+        init();
 
         // Let's turn!
         int speed = 50;
