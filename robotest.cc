@@ -21,6 +21,7 @@ enum NAVIGATION_STATUS
     NS_SEARCHING,
     NS_PRE_SURVEY,
     NS_SURVEY,
+    NS_END_SURVEY_ALIGN,
     NS_ESCAPE_CORNER,
     NS_FOLLOW_WALL,
     NS_SEARCH_LEFT_WALL,
@@ -30,6 +31,7 @@ enum NAVIGATION_STATUS
 NAVIGATION_STATUS g_navigationStatus;
 int g_backupTimeSlot = 0;
 int g_rotationTimeSlot = 0;
+bool g_NS_SURVEY_ISwallAvgHighValueSeen = false;
 ///////////////////////////////////////////////////////////////////////////////
 short g_wallSig_last1 = 0;
 short g_wallSig_last2 = 0;
@@ -113,6 +115,7 @@ int main ()
                             if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN)
                             {
                                 g_navigationStatus = NS_SURVEY;
+                                g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT;
                             }
 
@@ -129,7 +132,10 @@ int main ()
                         else if(robot.bumpRight())
                         {
                             if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN)
+                            {
                                 g_navigationStatus = NS_SURVEY;
+                                g_NS_SURVEY_ISwallAvgHighValueSeen = false;
+                            }
                             else
                                 g_navigationStatus = NS_PRE_SURVEY;
 
@@ -187,6 +193,7 @@ int main ()
                             if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN) {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 g_navigationStatus = NS_SURVEY;
+                                g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                             }
                         }
 
@@ -195,6 +202,7 @@ int main ()
 
                     case NS_SURVEY:
                     {// Condition: when it will enter the NS_SURVEY mode FOR THE FIRST TIME, the condition  [ws_getAverage(wallSignal) < WALL_SENSOR_MIN)] will be true
+                        //CONDITION FOR THE FIRST TIME : g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                         if(0 < g_backupTimeSlot)
                         {
                             robot.sendDriveCommand (-speed, Create::DRIVE_STRAIGHT);
@@ -203,6 +211,22 @@ int main ()
                         else
                         {
 
+                            // TODO:: store wall signal, generate stat
+
+                            if(WALL_SENSOR_MIN <= ws_getAverage(wallSignal))
+                                g_NS_SURVEY_ISwallAvgHighValueSeen = true;
+
+
+                            if( g_NS_SURVEY_ISwallAvgHighValueSeen && (ws_getAverage(wallSignal) < WALL_SENSOR_MIN) )
+                            {
+                                g_NS_SURVEY_ISwallAvgHighValueSeen = false;
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                g_navigationStatus = NS_END_SURVEY_ALIGN;
+                            }
+                            else
+                            {
+                                robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                            }
                         }
 
                         break;
