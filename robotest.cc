@@ -46,7 +46,7 @@ void initAll()
     sensors.push_back(Create::SENSOR_WALL_SIGNAL);
     sensors.push_back (Create::SENSOR_BUTTONS);
 
-    g_robotPtr->.sendStreamCommand (sensors);
+    g_robotPtr->sendStreamCommand (sensors);
     cout << "Sent Stream Command" << endl;
 
 }
