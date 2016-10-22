@@ -5,6 +5,8 @@
 #include <chrono>
 #include <thread>
 #include <climits>
+#include <list>
+#include <algorithm>
 //#include <raspicam/raspicam_cv.h>
 //#include <opencv2/imgproc/imgproc.hpp>
 
@@ -26,18 +28,69 @@ using namespace std;
 
 
 
-class SurveyData
+class SurveyManager
 {
 public:
-    short wallSensorArray[MAX_SURVEY_DATA];
+    std::list<short> wallSensorList;
+    std::list<short>::iterator listIT;
+    bool isFinalized = false;
 
-    SurveyData()
+    short min;
+    short max;
+
+    void init()
     {
-
+        wallSensorList.clear();
     }
 
-    void storeSurveyData(short wallSensor)
+    SurveyManager()
     {
+        init();
+    }
+
+    void pushSurveyData(short wallSensor)
+    {
+        if(false == isFinalized)
+            wallSensorList.push_back(wallSensor);
+    }
+
+    void finalizeSurvey()
+    {
+        wallSensorList.sort();
+
+        min = *(std::min_element(wallSensorList.begin(), wallSensorList.end()));
+        max = *(std::max_element(wallSensorList.begin(), wallSensorList.end()));
+
+        isFinalized = true;
+    }
+
+    double getSignalStrength(short wallSensor)
+    {
+        if(isFinalized)
+        {
+            if(wallSensor < min)
+                return 0.0;
+            else if(max < wallSensor)
+                return 1.0;
+            else
+            {
+                double index = 0.0;
+
+                for(listIT = wallSensorList.begin() ; listIT != wallSensorList.end()  ; ++listIT)
+                {
+                    if(*listIT <= wallSensor)
+                        index++;
+                    else
+                        break;
+
+                }
+
+                return (index/(double)wallSensorList.size());
+            }
+
+        }
+
+        return -1.0;
 
     }
 
@@ -62,6 +115,7 @@ int g_backupTimeSlot = 0;
 int g_rotationTimeSlot = 0;
 bool g_NS_SURVEY_ISwallAvgHighValueSeen = false;
 bool g_NS_ALIGN_IsRotateClockWise = true;
+SurveyManager *g_surveyManagerPtr = NULL;
 ///////////////////////////////////////////////////////////////////////////////
 short g_wallSig_last1 = 0;
 short g_wallSig_last2 = 0;
@@ -90,6 +144,7 @@ int ws_getAverage(short currentWallSignal)
 int main ()
 {
     g_navigationStatus = NS_SEARCHING;
+    g_surveyManagerPtr = NULL;
 
     char serial_loc[] = "/dev/ttyUSB0";
 
@@ -140,6 +195,12 @@ int main ()
                 {
                     case NS_SEARCHING:
                     {
+                        if(NULL != g_surveyManagerPtr)
+                        {
+                            delete g_surveyManagerPtr;
+                            g_surveyManagerPtr = NULL;
+                        }
+
                         if(robot.bumpLeft() )
                         {
                             if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN)
@@ -241,6 +302,11 @@ int main ()
                         else
                         {
 
+                            if(NULL == g_surveyManagerPtr)
+                                g_surveyManagerPtr = new SurveyManager;
+
+                            g_surveyManagerPtr->pushSurveyData(wallSignal);
+
                             // TODO:: store wall signal, generate stat
 
                             if(WALL_SENSOR_MIN <= ws_getAverage(wallSignal))
@@ -252,6 +318,8 @@ int main ()
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 g_NS_ALIGN_IsRotateClockWise = true;
+
+                                g_surveyManagerPtr->finalizeSurvey();
                                 g_navigationStatus = NS_ALIGN;
                             }
                             else
