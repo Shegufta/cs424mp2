@@ -12,11 +12,7 @@ using namespace LibSerial;
 using namespace std;
 
 
-char serial_loc[] = "/dev/ttyUSB0";
-SerialStream stream (serial_loc, LibSerial::SerialStreamBuf::BAUD_57600);
-Create robot(stream);
 
-Create::sensorPackets_t sensors;
 
 
 void init()
@@ -24,12 +20,8 @@ void init()
     //cout << "Opened Serial Stream to" << serial_loc << endl;
     // this_thread::sleep_for(chrono::milliseconds(1000));
 
-    //cout << "Created iRobot Object" << endl;
-    cout <<"sendFullCommand();"<<endl;
-    robot.sendFullCommand();
-    cout << "Setting iRobot to Full Mode" << endl;
-    this_thread::sleep_for(chrono::milliseconds(1000));
-    cout << "Robot is ready" << endl;
+    //
+
 
     // Let's stream some sensors.
 
@@ -39,12 +31,30 @@ void init()
 
     robot.sendStreamCommand (sensors);
     cout << "Sent Stream Command" << endl;
-    
+
 
 }
 
 int main ()
 {
+
+    char serial_loc[] = "/dev/ttyUSB0";
+    SerialStream stream (serial_loc, LibSerial::SerialStreamBuf::BAUD_57600);
+    cout << "Opened Serial Stream to" << serial_loc << endl;
+    Create robot(stream);
+    cout << "Created iRobot Object" << endl;
+
+    cout <<"sendFullCommand();"<<endl;
+    robot.sendFullCommand();
+    cout << "Setting iRobot to Full Mode" << endl;
+    this_thread::sleep_for(chrono::milliseconds(1000));
+    cout << "Robot is ready" << endl;
+
+    Create::sensorPackets_t sensors;
+
+
+
+
 
 
     try
