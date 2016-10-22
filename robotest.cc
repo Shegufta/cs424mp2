@@ -25,7 +25,8 @@ void init()
     // this_thread::sleep_for(chrono::milliseconds(1000));
 
     //cout << "Created iRobot Object" << endl;
-    robot.sendFullCommand();  
+    cout <<"sendFullCommand();"<<endl;
+    robot.sendFullCommand();
     cout << "Setting iRobot to Full Mode" << endl;
     this_thread::sleep_for(chrono::milliseconds(1000));
     cout << "Robot is ready" << endl;
