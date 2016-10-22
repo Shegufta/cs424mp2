@@ -23,8 +23,10 @@ using namespace std;
 #define DEFAULT_BACKUP_TIME_SLOT_ESCAPE 10
 #define DEFAULT_ROTATION_TIME_SLOT 5
 
-
-#define MAX_SURVEY_DATA 1000
+#define SEARCHING_SPEED 50
+#define FOLLOW_WALL_SPEED 50
+#define ALIGNMENT_SPEED 25
+#define ALIGNMENT_THRESHOLD 0.9
 
 
 
@@ -103,6 +105,7 @@ enum NAVIGATION_STATUS
     NS_SEARCHING,
     NS_PRE_SURVEY,
     NS_SURVEY,
+    NS_POST_SURVEY_ALIGN,
     NS_ALIGN,
     NS_ESCAPE_CORNER,
     NS_FOLLOW_WALL,
@@ -235,7 +238,7 @@ int main ()
                         }
                         else
                         {
-                            robot.sendDriveCommand (speed, Create::DRIVE_STRAIGHT);
+                            robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                         }
 
                         break;
@@ -245,7 +248,7 @@ int main ()
                     {
                         if(0 < g_backupTimeSlot)
                         {
-                            robot.sendDriveCommand (-speed, Create::DRIVE_STRAIGHT);
+                            robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             g_backupTimeSlot--;
 
                             if(0 == g_backupTimeSlot)
@@ -257,7 +260,7 @@ int main ()
 
                         if(0 < g_rotationTimeSlot)
                         {
-                            robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
                             g_rotationTimeSlot--;
 
@@ -317,10 +320,9 @@ int main ()
                             {
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                g_NS_ALIGN_IsRotateClockWise = true;
 
                                 g_surveyManagerPtr->finalizeSurvey();
-                                g_navigationStatus = NS_ALIGN;
+                                g_navigationStatus = NS_POST_SURVEY_ALIGN;
                             }
                             else
                             {
@@ -330,10 +332,34 @@ int main ()
 
                         break;
                     }
-                    case NS_ALIGN:
+                    case NS_POST_SURVEY_ALIGN:
                     {
 
+                        if (g_surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
+                            robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                        else
+                        {
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            g_navigationStatus = NS_FOLLOW_WALL;
+
+                        }
+                        break;
                     }
+                    case NS_FOLLOW_WALL:
+                    {
+                        if(robot.bumpLeft() || robot.bumpRight() )
+                        {
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT); // TODO change this logic
+                            g_navigationStatus = NS_SEARCHING; // TODO  change this logic
+                        }
+                        else
+                        {
+                            robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                        }
+
+                        break;
+                    }
+
 
                 }
 
@@ -363,7 +389,7 @@ int main ()
             }
             */
 
-            cout << "Wall signal " << robot.wallSignal() << "     sleep time "<<sleepTimeMS<< endl;
+            cout << "Wall signal " << robot.wallSignal() << "     sleep time "<<sleepTimeMS << "    navStatus = " << g_navigationStatus<< endl;
 
             this_thread::sleep_for(chrono::milliseconds(sleepTimeMS));
 
