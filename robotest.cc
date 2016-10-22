@@ -25,12 +25,11 @@ using namespace std;
 #define MAX_SURVEY_DATA 1000
 
 
-/*
+
 class SurveyData
 {
 public:
     short wallSensorArray[MAX_SURVEY_DATA];
-    short
 
     SurveyData()
     {
@@ -43,8 +42,9 @@ public:
     }
 
 
+
 };
-*/
+
 enum NAVIGATION_STATUS
 {
     NS_SEARCHING,
