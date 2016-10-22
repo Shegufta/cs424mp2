@@ -53,9 +53,33 @@ int main ()
     robot.sendLedCommand (Create::LED_PLAY, 0, 0);
     cout << "Sent Drive Command" << endl;
 
+
+      int sleepTimeMS = 100;
+
     short wallSignal, prevWallSignal = 0;
     while (!robot.playButton ())
     {
+        short wallSignal = robot.wallSignal();
+
+        robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+        if(robot.bumpLeft())
+        {
+            if( 20 < (sleepTimeMS - 10 ) )
+                sleepTimeMS -= 10;
+        }
+
+        if(robot.bumpRight())
+        {
+            if((sleepTimeMS + 10)<2000)
+                sleepTimeMS += 10;
+        }
+
+        cout << "Wall signal " << robot.wallSignal() << "     sleep time "<<sleepTimeMS<< endl;
+
+        this_thread::sleep_for(chrono::milliseconds(sleepTimeMS));
+
+        /*
       if (robot.bumpLeft () || robot.bumpRight ()) {
         cout << "Bump !" << endl;
         robot.sendDriveCommand(-speed, Create::DRIVE_STRAIGHT);
@@ -67,6 +91,8 @@ int main ()
       }
       short wallSignal = robot.wallSignal();
         cout << "Wall signal " << robot.wallSignal() << endl;
+*/
+
 
         /*
       if (wallSignal > 0) {
@@ -83,7 +109,7 @@ int main ()
         }
       }
         */
-      prevWallSignal = wallSignal;
+      //prevWallSignal = wallSignal;
         /*
       if (robot.advanceButton ())
       {
@@ -105,7 +131,7 @@ int main ()
       }
 */
       // You can add more commands here.
-      this_thread::sleep_for(chrono::milliseconds(100));
+      //this_thread::sleep_for(chrono::milliseconds(100));
     }
     
     cout << "Play button pressed, stopping Robot" << endl;
