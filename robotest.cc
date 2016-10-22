@@ -47,7 +47,7 @@ int main ()
     robot.sendStreamCommand (sensors);
     cout << "Sent Stream Command" << endl;
     // Let's turn!
-    int speed = 100;
+    int speed = 50;
     int ledColor = Create::LED_COLOR_GREEN;
     robot.sendDriveCommand (speed, Create::DRIVE_STRAIGHT);
     robot.sendLedCommand (Create::LED_PLAY, 0, 0);
@@ -65,7 +65,7 @@ int main ()
 
         if(robot.bumpLeft())
         {
-            if( 20 < (sleepTimeMS - 10 ) )
+            if( 10 <= (sleepTimeMS - 10 ) )
                 sleepTimeMS -= 10;
         }
 
