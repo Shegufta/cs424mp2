@@ -11,6 +11,8 @@ using namespace iRobot;
 using namespace LibSerial;
 using namespace std;
 
+#define WALL_SENSOR_MIN 4
+
 enum NAVIGATION_STATUS
 {
     NS_SEARCHING,
@@ -21,26 +23,40 @@ enum NAVIGATION_STATUS
     NS_SEARCH_RIGHT_WALL
 };
 
-NAVIGATION_STATUS g_navigatinStatus;
+NAVIGATION_STATUS g_navigationStatus;
+///////////////////////////////////////
+short g_wallSig_last1 = 0;
+short g_wallSig_last2 = 0;
+short g_wallSig_last3 = 0;
+
+void ws_resetHistory()
+{
+    g_wallSig_last1 = g_wallSig_last2 = g_wallSig_last3 = 0;
+}
+
+void ws_appendHistory(short currentWallSignal)
+{
+    g_wallSig_last3 = g_wallSig_last2;
+    g_wallSig_last2 = g_wallSig_last1;
+    g_wallSig_last1 = currentWallSignal;
+}
+
+int ws_getAverage(short currentWallSignal)
+{
+    double sum = 0.0;
+    sum = currentWallSignal + g_wallSig_last1 + g_wallSig_last2 + g_wallSig_last3;
+    return (int)sum/4.0;
+}
+////////////////////////////////////////
 
 int main ()
 {
-    g_navigatinStatus = NS_SEARCHING;
-    
+    g_navigationStatus = NS_SEARCHING;
+
     char serial_loc[] = "/dev/ttyUSB0";
 
     try
     {
-        /*
-          raspicam::RaspiCam_Cv Camera;
-          cv::Mat rgb_image, bgr_image;
-          if (!Camera.open()) {
-            cerr << "Error opening the camera" << endl;
-            return -1;
-          }
-
-          cout << "Opened Camera" << endl;
-          */
         SerialStream stream (serial_loc, LibSerial::SerialStreamBuf::BAUD_57600);
         cout << "Opened Serial Stream to" << serial_loc << endl;
         this_thread::sleep_for(chrono::milliseconds(1000));
@@ -62,9 +78,9 @@ int main ()
         // Let's turn!
         int speed = 50;
         int ledColor = Create::LED_COLOR_GREEN;
-        robot.sendDriveCommand (speed, Create::DRIVE_STRAIGHT);
-        robot.sendLedCommand (Create::LED_PLAY, 0, 0);
-        cout << "Sent Drive Command" << endl;
+        //robot.sendDriveCommand (speed, Create::DRIVE_STRAIGHT);
+        //robot.sendLedCommand (Create::LED_PLAY, 0, 0);
+        //cout << "Sent Drive Command" << endl;
 
 
         int sleepTimeMS = 100;
@@ -73,6 +89,20 @@ int main ()
         while (!robot.playButton ())
         {
             short wallSignal = robot.wallSignal();
+
+            switch(g_navigationStatus)
+            {
+                case NS_SEARCHING:
+                {
+
+
+                    break;
+                }
+
+            }
+
+
+
 
             robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
