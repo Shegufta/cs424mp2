@@ -11,9 +11,22 @@ using namespace iRobot;
 using namespace LibSerial;
 using namespace std;
 
+enum NAVIGATION_STATUS
+{
+    NS_SEARCHING,
+    NS_ALIGNMENT,
+    NS_SURVEY,
+    NS_FOLLOW_WALL,
+    NS_SEARCH_LEFT_WALL,
+    NS_SEARCH_RIGHT_WALL
+};
+
+NAVIGATION_STATUS g_navigatinStatus;
 
 int main ()
 {
+    g_navigatinStatus = NS_SEARCHING;
+    
     char serial_loc[] = "/dev/ttyUSB0";
 
     try
