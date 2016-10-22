@@ -29,6 +29,7 @@ Create* g_robotPtr = NULL;
 
 void initAll()
 {
+    char serial_loc[] = "/dev/ttyUSB0";
     SerialStream stream (serial_loc, LibSerial::SerialStreamBuf::BAUD_57600);
     cout << "Opened Serial Stream to" << serial_loc << endl;
     this_thread::sleep_for(chrono::milliseconds(1000));
@@ -54,7 +55,7 @@ void initAll()
 
 int main ()
 {
-  char serial_loc[] = "/dev/ttyUSB0";
+
 
   try
   {
