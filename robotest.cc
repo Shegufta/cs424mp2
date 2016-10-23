@@ -27,7 +27,7 @@ using namespace std;
 #define FRONT_WALL_SEARCH_ROTATION_TIME_SLOT 50
 
 #define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 400
-#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 300
+#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 350
 
 
 #define SEARCHING_SPEED 50
@@ -486,6 +486,16 @@ int main ()
                     }
                     case NS_SEARCH_FRONT_WALL:
                     {
+                        if(robot.bumpLeft() || robot.bumpRight())
+                        {
+                            // safety feature
+                            g_backupTimeSlot = 0;
+                            g_rotationTimeSlot = 0;
+                            g_navigationStatus = NS_SEARCHING;
+                            g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
+                            break;
+                        }
+
                         if(0 < g_backupTimeSlot)
                         {
                             robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
@@ -515,6 +525,15 @@ int main ()
 
                     case NS_SEARCH_RIGHT_WALL:
                     {
+                        if(robot.bumpLeft() || robot.bumpRight())
+                        {
+                            // safety feature
+                            g_backupTimeSlot = 0;
+                            g_rotationTimeSlot = 0;
+                            g_navigationStatus = NS_SEARCHING;
+                            g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
+                            break;
+                        }
 
                         if(0 < g_backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
                         {
