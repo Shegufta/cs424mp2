@@ -28,7 +28,7 @@ using namespace std;
 
 #define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 350
 #define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 300
-#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -10
+#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -20
 
 #define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 10
 
@@ -541,6 +541,12 @@ int main ()
                         {
                             robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
                             g_rotationTimeSlot++;
+
+                            if(0 == g_rotationTimeSlot)
+                            {
+                                cout << " inside NS_SEARCH_RIGHT_WALL,  COUNTER-clockwise rotation end...."<<endl;
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            }
                         }
                         else if(0 < g_backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
                         {
