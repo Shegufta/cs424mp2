@@ -19,7 +19,7 @@ using namespace LibSerial;
 using namespace std;
 
 #define WALL_SENSOR_MIN 4
-#define DEFAULT_BACKUP_TIME_SLOT 100
+#define DEFAULT_BACKUP_TIME_SLOT 50
 #define DEFAULT_BACKUP_TIME_SLOT_ESCAPE 10
 #define DEFAULT_ROTATION_TIME_SLOT 5
 
