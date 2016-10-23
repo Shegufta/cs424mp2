@@ -563,6 +563,8 @@ int main ()
                                 robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                                 g_rotationTimeSlot = RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT;
                             }
+
+                            break;
                         }
                         else if(0 < g_rotationTimeSlot)
                         {
@@ -575,6 +577,8 @@ int main ()
                                 cout << " inside NS_SEARCH_RIGHT_WALL,  clockwise rotation end...."<<endl;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                             }
+
+                            break;
                         }
 
                         if(robot.bumpLeft() )
