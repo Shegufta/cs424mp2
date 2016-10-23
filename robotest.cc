@@ -71,6 +71,11 @@ public:
 
         return (0<=del);
     }
+
+    bool isNoWallSignal()
+    {
+        return (getAverage() < WALL_SENSOR_MIN);
+    }
 };
 
 class SurveyManager
@@ -265,7 +270,7 @@ int main ()
 
                         if(robot.bumpLeft() )
                         {
-                            if(g_wallSigMgr.getAverage()< WALL_SENSOR_MIN)
+                            if(g_wallSigMgr.isNoWallSignal())
                             {
                                 g_navigationStatus = NS_SURVEY;
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
@@ -284,7 +289,7 @@ int main ()
                         }
                         else if(robot.bumpRight())
                         {
-                            if(g_wallSigMgr.getAverage() < WALL_SENSOR_MIN)
+                            if(g_wallSigMgr.isNoWallSignal())
                             {
                                 g_navigationStatus = NS_SURVEY;
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
@@ -341,7 +346,7 @@ int main ()
                         {
                             robot.sendDriveCommand(SURVEY_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
 
-                            if(g_wallSigMgr.getAverage()< WALL_SENSOR_MIN)
+                            if(g_wallSigMgr.isNoWallSignal())
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 g_navigationStatus = NS_SURVEY;
@@ -368,14 +373,14 @@ int main ()
 
                             g_surveyManagerPtr->pushSurveyData(wallSignal);
 
-                            if(WALL_SENSOR_MIN <= g_wallSigMgr.getAverage())
+                            if( (!g_NS_SURVEY_ISwallAvgHighValueSeen) && (!g_wallSigMgr.isNoWallSignal()) )
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = true;
 
 
                             if( g_NS_SURVEY_ISwallAvgHighValueSeen && (g_wallSigMgr.getAverage() < WALL_SENSOR_MIN) )
                             {
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                //robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
                                 g_surveyManagerPtr->finalizeSurvey();
                                 g_navigationStatus = NS_POST_SURVEY_ALIGN;
@@ -395,7 +400,7 @@ int main ()
                             robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                         else
                         {
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            //robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                             g_navigationStatus = NS_FOLLOW_WALL;
                             g_consecutiveOperation = 0;
 
@@ -405,76 +410,56 @@ int main ()
                     case NS_FOLLOW_WALL:
                     {// REQUIREMENT: g_consecutiveOperation = 0
 
-                        if(robot.bumpLeft())
+                        if(0 < g_backupTimeSlot)
                         {
-                            // turn left
-                        }
-                        else if(robot.bumpRight())
-                        {
-
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT;
-                            g_navigationStatus = NS_PRE_SURVEY;
-
+                            robot.sendDriveCommand (-DEFAULT_BACKUP_TIME_SLOT, Create::DRIVE_STRAIGHT);
+                            g_backupTimeSlot--;
                         }
                         else
                         {
-                            if(g_wallSigMgr.getAverage() < WALL_SENSOR_MIN)
+                            if(robot.bumpLeft())
                             {
-                                //turn right
+                                // turn left
                             }
-                            else
+                            else if(robot.bumpRight())
                             {
-                                if(g_consecutiveOperation < 4)
+
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT;
+
+                            }
+                            else {
+                                if (g_wallSigMgr.isNoWallSignal())
                                 {
-                                    robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
-                                    g_consecutiveOperation++;
+                                    //turn right
                                 }
                                 else
                                 {
-                                    g_consecutiveOperation=0;
+                                    if (g_consecutiveOperation < 4) {
+                                        robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                        g_consecutiveOperation++;
+                                    } else {
+                                        g_consecutiveOperation = 0;
 
-                                    if( g_surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD)
-                                    {
-                                        robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
-                                    }
-                                    else
-                                    {
-                                        if (g_wallSigMgr.isIncreasing())
-                                            robot.sendDriveCommand(ALIGNMENT_SPEED,Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-                                        else
+                                        if (g_surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD) {
                                             robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
-                                    }
+                                        } else {
+                                            if (g_wallSigMgr.isIncreasing())
+                                                robot.sendDriveCommand(ALIGNMENT_SPEED,
+                                                                       Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                            else
+                                                robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                        }
 
+
+                                    }
 
                                 }
-
                             }
 
                         }
 
-                        /*
-                        if(robot.bumpLeft() || robot.bumpRight() )
-                        {
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT); // TODO change this logic
-                            g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT_ESCAPE;
-                            g_navigationStatus = NS_SEARCHING; // TODO  change this logic
 
-                            //TODO flush the bump sensor
-                            //backoffress
-                        }
-                        else
-                        {
-                            if (g_surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
-                            {
-                                robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
-                            }
-                            else
-                            {
-                                robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
-                            }
-                        }
-                        */
 
                         break;
                     }
