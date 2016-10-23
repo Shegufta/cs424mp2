@@ -29,7 +29,7 @@ using namespace std;
 #define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 400
 #define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 350
 
-#define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 2;
+#define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 2
 
 
 #define SEARCHING_SPEED 50
@@ -257,20 +257,22 @@ int main ()
                         if(robot.bumpLeft() )
                         {
                             cout<<"NS_SEARCHING -> BUMP LEFT : next State ->";
-                            if(g_wallSigMgr.isNoWallSignal())
-                            {
+                            //if(g_wallSigMgr.isNoWallSignal())
+                            //{
                                 cout << "NS_SURVEY"<<endl;
                                 g_navigationStatus = NS_SURVEY;
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
-                            }
+                            //}
 
+                                /*
                             else
                             {
                                 cout << "NS_ESCAPE_CORNER"<<endl;
                                 g_navigationStatus = NS_ESCAPE_CORNER;
                                 g_backupTimeSlot = ESCAPE_BACKUP_TIME_SLOT;
                             }
+                            /*
 
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
