@@ -35,8 +35,8 @@ using namespace std;
 #define SURVEY_SPEED 50
 #define ALIGNMENT_SPEED 50
 
-#define ALIGNMENT_THRESHOLD 0.8
-#define OUTOF_CONTROL_THRESHOLD 0.5
+#define ALIGNMENT_THRESHOLD 0.7
+#define OUTOF_CONTROL_THRESHOLD 0.4
 
 class WallSignalManager
 {
