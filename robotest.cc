@@ -438,7 +438,7 @@ int main ()
 
                                         if( g_surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD)
                                         {
-                                            robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                            robot.sendDriveCommand(ALIGNMENT_SPEED*2, Create::DRIVE_INPLACE_CLOCKWISE);
                                         }
                                         else
                                         {
