@@ -26,8 +26,8 @@ using namespace std;
 #define FRONT_WALL_SEARCH_BACKUP_TIME_SLOT 100
 #define FRONT_WALL_SEARCH_ROTATION_TIME_SLOT 50
 
-#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 400
-#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 200
+#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 700
+#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 100
 
 
 #define SEARCHING_SPEED 50
@@ -220,7 +220,6 @@ int main ()
         int sleepTimeMS = 15;
 
         short wallSignal, prevWallSignal = 0;
-        //ws_resetHistory();
 
         while (!robot.playButton ())
         {
