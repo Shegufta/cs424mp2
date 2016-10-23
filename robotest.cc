@@ -434,10 +434,17 @@ int main ()
                                 {
                                     g_consecutiveOperation=0;
 
-                                    if(g_wallSigMgr.isIncreasing() || ( g_surveyManagerPtr->getSignalStrength(wallSignal)< OUTOF_CONTROL_THRESHOLD) )
-                                        robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-                                    else
+                                    if( g_surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD)
+                                    {
                                         robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                    }
+                                    else
+                                    {
+                                        if (g_wallSigMgr.isIncreasing())
+                                            robot.sendDriveCommand(ALIGNMENT_SPEED,Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                        else
+                                            robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                    }
 
 
                                 }
