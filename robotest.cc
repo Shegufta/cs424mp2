@@ -272,7 +272,7 @@ int main ()
                                 g_navigationStatus = NS_ESCAPE_CORNER;
                                 g_backupTimeSlot = ESCAPE_BACKUP_TIME_SLOT;
                             }
-                            /*
+                            */
 
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
