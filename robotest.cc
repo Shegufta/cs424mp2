@@ -173,6 +173,8 @@ int g_consecutiveOperation = 0;
 int g_backupTimeSlot = 0;
 int g_rotationTimeSlot = 0;
 bool g_NS_SURVEY_ISwallAvgHighValueSeen = false;
+int g_alignLeft = 0;
+int g_alignRight = 0;
 
 
 SurveyManager *g_surveyManagerPtr = NULL;
@@ -391,6 +393,8 @@ int main ()
                             g_navigationStatus = NS_FOLLOW_WALL;
                             g_consecutiveOperation = 0;
                             g_backupTimeSlot = 0;
+                            g_alignLeft = 0;
+                            g_alignRight = 0;
 
                         }
                         break;
@@ -427,6 +431,45 @@ int main ()
                                 }
                                 else
                                 {
+                                    if(0 < g_alignLeft)
+                                    {
+                                        robot.sendDriveCommand(ALIGNMENT_SPEED,Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                        g_alignLeft--;
+                                    }
+                                    else if(0 < g_alignRight)
+                                    {
+                                        robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                        g_alignRight--;
+                                    }
+                                    else
+                                    {
+                                        if(g_consecutiveOperation < 4)
+                                        {
+                                            robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                            g_consecutiveOperation++;
+                                        }
+                                        else
+                                        {
+                                            g_consecutiveOperation=0;
+                                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                                            if( g_surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD)
+                                            {
+                                                g_alignRight = 2;
+                                            }
+                                            else
+                                            {
+                                                if (g_wallSigMgr.isIncreasing())
+                                                    g_alignLeft = 1;
+                                                else
+                                                    g_alignRight = 1;
+                                            }
+
+                                        }
+
+                                    }
+
+                                    /*
                                     if(g_consecutiveOperation < 4)
                                     {
                                         robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
@@ -449,7 +492,7 @@ int main ()
                                         }
 
 
-                                    }
+                                    }*/
 
                                 }
 
