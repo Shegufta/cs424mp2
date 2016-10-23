@@ -198,6 +198,14 @@ int main ()
                 {
                     case NS_SEARCHING:
                     {
+                        if(0 < g_backupTimeSlot)
+                        {
+                            robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                            g_backupTimeSlot--;
+
+                            break;
+                        }
+
                         if(NULL != g_surveyManagerPtr)
                         {
                             delete g_surveyManagerPtr;
@@ -256,9 +264,7 @@ int main ()
                                 robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                                 g_rotationTimeSlot = DEFAULT_ROTATION_TIME_SLOT;
                             }
-                        }
-
-                        if(0 < g_rotationTimeSlot)
+                        }else if(0 < g_rotationTimeSlot)
                         {
                             robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
@@ -350,6 +356,7 @@ int main ()
                         if(robot.bumpLeft() || robot.bumpRight() )
                         {
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT); // TODO change this logic
+                            g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT_ESCAPE;
                             g_navigationStatus = NS_SEARCHING; // TODO  change this logic
 
                             //TODO flush the bump sensor
