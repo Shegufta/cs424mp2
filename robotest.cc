@@ -39,6 +39,7 @@ using namespace std;
 
 #define ALIGNMENT_THRESHOLD 0.7
 #define OUTOF_CONTROL_THRESHOLD 0.4
+#define LOWER_BOUND_OF_VALID_THRESHOLD 0.3
 
 class WallSignalManager
 {
@@ -440,7 +441,7 @@ int main ()
                                             g_consecutiveOperation=0;
                                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
-                                            if( g_surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD)
+                                            if( (LOWER_BOUND_OF_VALID_THRESHOLD <=g_surveyManagerPtr->getSignalStrength(wallSignal) ) && (g_surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
                                             {
                                                 g_alignRight = 4;
                                             }
