@@ -19,7 +19,7 @@ using namespace LibSerial;
 using namespace std;
 
 #define WALL_SENSOR_MIN 4
-#define DEFAULT_BACKUP_TIME_SLOT 5
+#define DEFAULT_BACKUP_TIME_SLOT 100
 #define DEFAULT_BACKUP_TIME_SLOT_ESCAPE 10
 #define DEFAULT_ROTATION_TIME_SLOT 5
 
@@ -351,6 +351,9 @@ int main ()
                         {
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT); // TODO change this logic
                             g_navigationStatus = NS_SEARCHING; // TODO  change this logic
+
+                            //TODO flush the bump sensor
+                            //backoffress
                         }
                         else
                         {
