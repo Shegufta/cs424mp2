@@ -537,10 +537,10 @@ int main ()
 
                     case NS_SEARCH_RIGHT_WALL:
                     {
-                        if(g_backupTimeSlot < 0)
+                        if(g_rotationTimeSlot < 0)
                         {
                             robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-                            g_backupTimeSlot++;
+                            g_rotationTimeSlot++;
                         }
                         else if(0 < g_backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
                         {
