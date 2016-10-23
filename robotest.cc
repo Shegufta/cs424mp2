@@ -254,8 +254,10 @@ int main ()
 
                         if(robot.bumpLeft() )
                         {
+                            cout<<"NS_SEARCHING -> BUMP LEFT : next State ->";
                             if(g_wallSigMgr.isNoWallSignal())
                             {
+                                cout << "NS_SURVEY"<<endl;
                                 g_navigationStatus = NS_SURVEY;
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
@@ -263,6 +265,7 @@ int main ()
 
                             else
                             {
+                                cout << "NS_ESCAPE_CORNER"<<endl;
                                 g_navigationStatus = NS_ESCAPE_CORNER;
                                 g_backupTimeSlot = ESCAPE_BACKUP_TIME_SLOT;
                             }
@@ -272,8 +275,10 @@ int main ()
                         }
                         else if(robot.bumpRight())
                         {
+                            cout<<"NS_SEARCHING -> BUMP RIGHT : next State ->";
                             if(g_wallSigMgr.isNoWallSignal())
                             {
+                                cout << "NS_SURVEY"<<endl;
                                 g_backupTimeSlot = SHORT_BACKUP_TIME_SLOT;
 
                                 g_navigationStatus = NS_SURVEY;
@@ -282,6 +287,7 @@ int main ()
                             }
                             else
                             {
+                                cout << "NS_PRE_SURVEY"<<endl;
                                 g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
                                 g_navigationStatus = NS_PRE_SURVEY;
                             }
