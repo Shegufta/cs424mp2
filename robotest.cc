@@ -542,11 +542,13 @@ int main ()
                             robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
                             g_rotationTimeSlot++;
 
+                            cout <<"NS_SEARCH_RIGHT_WALL :: counterclockwise g_rotationTimeSlot = "<<g_rotationTimeSlot <<endl;
                             if(0 == g_rotationTimeSlot)
                             {
                                 cout << " inside NS_SEARCH_RIGHT_WALL,  COUNTER-clockwise rotation end...."<<endl;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                             }
+                            break;
                         }
                         else if(0 < g_backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
                         {
