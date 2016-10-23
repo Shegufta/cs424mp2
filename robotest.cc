@@ -50,7 +50,7 @@ public:
         {
             wallSignalHistoryArray[index-1] = wallSignalHistoryArray[index];
         }
-        wallSignalHistoryArray[index] = currentWallSignal;
+        wallSignalHistoryArray[index-1] = currentWallSignal;
     }
 
     short getAverage()
