@@ -69,7 +69,7 @@ public:
     {
         int del = wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1] - wallSignalHistoryArray[0];
 
-        return (0<=del);
+        return (0<del);
     }
 };
 
