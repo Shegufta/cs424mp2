@@ -26,8 +26,8 @@ using namespace std;
 #define FRONT_WALL_SEARCH_BACKUP_TIME_SLOT 100
 #define FRONT_WALL_SEARCH_ROTATION_TIME_SLOT 50
 
-#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 400
-#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 350
+#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 350
+#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 300
 
 #define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 2
 
@@ -164,7 +164,6 @@ enum NAVIGATION_STATUS
     NS_PRE_SURVEY,
     NS_SURVEY,
     NS_POST_SURVEY_ALIGN,
-    NS_ESCAPE_CORNER,
     NS_FOLLOW_WALL,
     NS_SEARCH_FRONT_WALL,
     NS_SEARCH_RIGHT_WALL
@@ -397,15 +396,15 @@ int main ()
 
                             if(robot.bumpLeft())
                             {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 cout<<"BUMP LEFT :: NS_FOLLOW_WALL  - >  NS_SEARCH_FRONT_WALL"<<endl;
                                 g_navigationStatus = NS_SEARCH_FRONT_WALL;
                                 g_backupTimeSlot = FRONT_WALL_SEARCH_BACKUP_TIME_SLOT;
                             }
                             else if(robot.bumpRight())
                             {
-                                cout<<"BUMP RIGHT :: NS_FOLLOW_WALL  - >  rotate counter clockwise"<<endl;
-
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                cout<<"BUMP RIGHT :: NS_FOLLOW_WALL  - >  rotate counter clockwise"<<endl;
                                 g_backupTimeSlot = SHORT_BACKUP_TIME_SLOT;
                             }
                             else
@@ -468,6 +467,33 @@ int main ()
                     }
                     case NS_SEARCH_FRONT_WALL:
                     {
+                        if(0 < g_backupTimeSlot)
+                        {
+                            robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                            g_backupTimeSlot--;
+
+                            if(0 == g_backupTimeSlot)
+                            {
+                                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+                                g_rotationTimeSlot = FRONT_WALL_SEARCH_ROTATION_TIME_SLOT;
+                            }
+                            break;
+                        }
+                        else if(0 < g_rotationTimeSlot)
+                        {
+                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+                            g_rotationTimeSlot--;
+
+                            if(0 == g_rotationTimeSlot)
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                g_navigationStatus = NS_SEARCHING;
+                            }
+                            break;
+                        }
+
+
                         if(robot.bumpLeft() )
                         {
                             g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
@@ -498,20 +524,27 @@ int main ()
 
                         }
 
-                        if(0 < g_backupTimeSlot)
+                        robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+
+                        break;
+                    }
+
+                    case NS_SEARCH_RIGHT_WALL:
+                    {
+                        if(0 < g_backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
                         {
-                            robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                            robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             g_backupTimeSlot--;
 
                             if(0 == g_backupTimeSlot)
                             {
                                 robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
-                                g_rotationTimeSlot = FRONT_WALL_SEARCH_ROTATION_TIME_SLOT;
+                                g_rotationTimeSlot = RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT;
                             }
                         }
                         else if(0 < g_rotationTimeSlot)
                         {
-                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
 
                             g_rotationTimeSlot--;
 
@@ -522,11 +555,6 @@ int main ()
                             }
                         }
 
-                        break;
-                    }
-
-                    case NS_SEARCH_RIGHT_WALL:
-                    {
                         if(robot.bumpLeft() )
                         {
                             g_navigationStatus = NS_SEARCHING;
@@ -560,29 +588,9 @@ int main ()
                         }
 
 
-                        if(0 < g_backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
-                        {
-                            robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
-                            g_backupTimeSlot--;
 
-                            if(0 == g_backupTimeSlot)
-                            {
-                                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
-                                g_rotationTimeSlot = RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT;
-                            }
-                        }
-                        else if(0 < g_rotationTimeSlot)
-                        {
-                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
 
-                            g_rotationTimeSlot--;
-
-                            if(0 == g_rotationTimeSlot)
-                            {
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                g_navigationStatus = NS_SEARCHING;
-                            }
-                        }
+                        robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
 
                         break;
                     }
