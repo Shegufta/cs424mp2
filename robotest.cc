@@ -25,8 +25,9 @@ using namespace std;
 
 #define SEARCHING_SPEED 50
 #define FOLLOW_WALL_SPEED 50
-#define ALIGNMENT_SPEED 25
-#define ALIGNMENT_THRESHOLD 0.7
+#define SURVEY_SPEED 50
+#define ALIGNMENT_SPEED 50
+#define ALIGNMENT_THRESHOLD 1.0
 
 
 
@@ -283,12 +284,12 @@ int main ()
                     {
                         if(0 < g_backupTimeSlot)
                         {
-                            robot.sendDriveCommand (-speed, Create::DRIVE_STRAIGHT);
+                            robot.sendDriveCommand (-DEFAULT_BACKUP_TIME_SLOT, Create::DRIVE_STRAIGHT);
                             g_backupTimeSlot--;
                         }
                         else
                         {
-                            robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_CLOCKWISE);
+                            robot.sendDriveCommand(SURVEY_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
 
                             if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN) {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
@@ -305,7 +306,7 @@ int main ()
                         //CONDITION FOR THE FIRST TIME : g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                         if(0 < g_backupTimeSlot)
                         {
-                            robot.sendDriveCommand (-speed, Create::DRIVE_STRAIGHT);
+                            robot.sendDriveCommand (-DEFAULT_BACKUP_TIME_SLOT, Create::DRIVE_STRAIGHT);
                             g_backupTimeSlot--;
                         }
                         else
@@ -315,8 +316,6 @@ int main ()
                                 g_surveyManagerPtr = new SurveyManager;
 
                             g_surveyManagerPtr->pushSurveyData(wallSignal);
-
-                            // TODO:: store wall signal, generate stat
 
                             if(WALL_SENSOR_MIN <= ws_getAverage(wallSignal))
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = true;
@@ -332,7 +331,7 @@ int main ()
                             }
                             else
                             {
-                                robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                robot.sendDriveCommand(SURVEY_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
                             }
                         }
 
