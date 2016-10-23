@@ -366,8 +366,7 @@ int main ()
                         {
                             if (g_surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
                             {
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                g_navigationStatus = NS_ALIGN;
+                                robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                             }
                             else
                             {
@@ -377,6 +376,7 @@ int main ()
 
                         break;
                     }
+                    /*
 
                     case NS_ALIGN:
                     {
@@ -388,6 +388,7 @@ int main ()
 
                         break;
                     }
+                    */
 
 
                 }
