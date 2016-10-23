@@ -28,8 +28,10 @@ using namespace std;
 
 #define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 350
 #define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 300
+#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -10
 
 #define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 10
+
 
 
 #define SEARCHING_SPEED 50
@@ -413,6 +415,7 @@ int main ()
                                 if(g_wallSigMgr.isNoWallSignal())
                                 {
                                     cout<<"NO WALL SIGNAL :: Search for right wall"<<endl;
+                                    g_rotationTimeSlot = RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
                                     g_navigationStatus = NS_SEARCH_RIGHT_WALL;
                                     g_backupTimeSlot = RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT;  // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used g_backupTimeSlot
 
@@ -534,7 +537,12 @@ int main ()
 
                     case NS_SEARCH_RIGHT_WALL:
                     {
-                        if(0 < g_backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
+                        if(g_backupTimeSlot < 0)
+                        {
+                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                            g_backupTimeSlot++;
+                        }
+                        else if(0 < g_backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
                         {
                             robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             g_backupTimeSlot--;
