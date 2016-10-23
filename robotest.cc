@@ -27,7 +27,7 @@ using namespace std;
 #define FOLLOW_WALL_SPEED 50
 #define SURVEY_SPEED 50
 #define ALIGNMENT_SPEED 50
-#define ALIGNMENT_THRESHOLD 7.0
+#define ALIGNMENT_THRESHOLD 0.7
 
 
 
