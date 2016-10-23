@@ -28,8 +28,50 @@ using namespace std;
 #define SURVEY_SPEED 50
 #define ALIGNMENT_SPEED 50
 #define ALIGNMENT_THRESHOLD 0.7
+#define OUTOF_CONTROL_THRESHOLD 0.4
 
+class WallSignalManager
+{
+private:
+    const int WALL_SIGNAL_HISTORY_SIZE = 4;
+public:
+    short wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE];
 
+    WallSignalManager()
+    {
+        for(int i=0 ; i<WALL_SIGNAL_HISTORY_SIZE ; i++)
+            wallSignalHistoryArray[i] = 0;
+    }
+
+    void appendHistory(short currentWallSignal)
+    {
+        int index = 1;
+        for(; index< WALL_SIGNAL_HISTORY_SIZE; index++)
+        {
+            wallSignalHistoryArray[index-1] = wallSignalHistoryArray[index];
+        }
+        wallSignalHistoryArray[index] = currentWallSignal;
+    }
+
+    short getAverage()
+    {
+        double sum = 0.0;
+
+        for(int index = 0; index< WALL_SIGNAL_HISTORY_SIZE; index++)
+        {
+            sum += wallSignalHistoryArray[index];
+        }
+
+        return (short)(sum / (double)WALL_SIGNAL_HISTORY_SIZE);
+    }
+
+    bool isIncreasing()
+    {
+        int del = wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1] - wallSignalHistoryArray[0];
+
+        return (0<=del);
+    }
+};
 
 class SurveyManager
 {
@@ -115,12 +157,17 @@ enum NAVIGATION_STATUS
 };
 
 NAVIGATION_STATUS g_navigationStatus;
+int g_consecutiveOperation = 0;
 int g_backupTimeSlot = 0;
 int g_rotationTimeSlot = 0;
 bool g_NS_SURVEY_ISwallAvgHighValueSeen = false;
 bool g_NS_ALIGN_IsRotateClockWise = true;
 SurveyManager *g_surveyManagerPtr = NULL;
+WallSignalManager g_wallSigMgr;
 ///////////////////////////////////////////////////////////////////////////////
+
+
+/*
 short g_wallSig_last1 = 0;
 short g_wallSig_last2 = 0;
 short g_wallSig_last3 = 0;
@@ -143,6 +190,7 @@ int ws_getAverage(short currentWallSignal)
     sum = currentWallSignal + g_wallSig_last1 + g_wallSig_last2 + g_wallSig_last3;
     return (int)sum/4.0;
 }
+ */
 ///////////////////////////////////////////////////////////////////////////////
 
 int main ()
@@ -184,16 +232,18 @@ int main ()
         int sleepTimeMS = 15;
 
         short wallSignal, prevWallSignal = 0;
-        ws_resetHistory();
+        //ws_resetHistory();
 
         while (!robot.playButton ())
         {
             short wallSignal = robot.wallSignal();
+            g_wallSigMgr.appendHistory(wallSignal);
 
             if(false)
             {// check sensors... drop sensor etc
                 robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
-            } else
+            }
+            else
             {
                 switch(g_navigationStatus)
                 {
@@ -215,7 +265,7 @@ int main ()
 
                         if(robot.bumpLeft() )
                         {
-                            if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN)
+                            if(g_wallSigMgr.getAverage()< WALL_SENSOR_MIN)
                             {
                                 g_navigationStatus = NS_SURVEY;
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
@@ -234,7 +284,7 @@ int main ()
                         }
                         else if(robot.bumpRight())
                         {
-                            if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN)
+                            if(g_wallSigMgr.getAverage() < WALL_SENSOR_MIN)
                             {
                                 g_navigationStatus = NS_SURVEY;
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
@@ -291,7 +341,8 @@ int main ()
                         {
                             robot.sendDriveCommand(SURVEY_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
 
-                            if(ws_getAverage(wallSignal) < WALL_SENSOR_MIN) {
+                            if(g_wallSigMgr.getAverage()< WALL_SENSOR_MIN)
+                            {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 g_navigationStatus = NS_SURVEY;
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
@@ -317,11 +368,11 @@ int main ()
 
                             g_surveyManagerPtr->pushSurveyData(wallSignal);
 
-                            if(WALL_SENSOR_MIN <= ws_getAverage(wallSignal))
+                            if(WALL_SENSOR_MIN <= g_wallSigMgr.getAverage())
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = true;
 
 
-                            if( g_NS_SURVEY_ISwallAvgHighValueSeen && (ws_getAverage(wallSignal) < WALL_SENSOR_MIN) )
+                            if( g_NS_SURVEY_ISwallAvgHighValueSeen && (g_wallSigMgr.getAverage() < WALL_SENSOR_MIN) )
                             {
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
@@ -346,12 +397,56 @@ int main ()
                         {
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                             g_navigationStatus = NS_FOLLOW_WALL;
+                            g_consecutiveOperation = 0;
 
                         }
                         break;
                     }
                     case NS_FOLLOW_WALL:
-                    {
+                    {// REQUIREMENT: g_consecutiveOperation = 0
+
+                        if(robot.bumpLeft())
+                        {
+                            // turn left
+                        }
+                        else if(robot.bumpRight())
+                        {
+
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT;
+                            g_navigationStatus = NS_PRE_SURVEY;
+
+                        }
+                        else
+                        {
+                            if(g_wallSigMgr.getAverage() < WALL_SENSOR_MIN)
+                            {
+                                //turn right
+                            }
+                            else
+                            {
+                                if(g_consecutiveOperation < 4)
+                                {
+                                    robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                    g_consecutiveOperation++;
+                                }
+                                else
+                                {
+                                    g_consecutiveOperation=0;
+
+                                    if(g_wallSigMgr.isIncreasing())
+                                        robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                    else
+                                        robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+
+
+                                }
+
+                            }
+
+                        }
+
+                        /*
                         if(robot.bumpLeft() || robot.bumpRight() )
                         {
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT); // TODO change this logic
@@ -372,6 +467,7 @@ int main ()
                                 robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
                             }
                         }
+                        */
 
                         break;
                     }
@@ -397,84 +493,15 @@ int main ()
 
 
 
-            ws_appendHistory(wallSignal);
+
+            //ws_appendHistory(wallSignal);
 
 
-
-
-            /*
-            robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-
-            if(robot.bumpLeft())
-            {
-                if( 10 <= (sleepTimeMS - 10 ) )
-                    sleepTimeMS -= 10;
-            }
-
-            if(robot.bumpRight())
-            {
-                if((sleepTimeMS + 10)<2000)
-                    sleepTimeMS += 10;
-            }
-            */
 
             cout << "Wall signal " << robot.wallSignal() << "     sleep time "<<sleepTimeMS << "    navStatus = " << g_navigationStatus<< endl;
 
             this_thread::sleep_for(chrono::milliseconds(sleepTimeMS));
 
-            /*
-          if (robot.bumpLeft () || robot.bumpRight ()) {
-            cout << "Bump !" << endl;
-            robot.sendDriveCommand(-speed, Create::DRIVE_STRAIGHT);
-            this_thread::sleep_for(chrono::milliseconds(1000));
-            robot.sendDriveCommand(speed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-            this_thread::sleep_for(chrono::milliseconds(300));
-            robot.sendDriveCommand(speed, Create::DRIVE_STRAIGHT);
-
-          }
-          short wallSignal = robot.wallSignal();
-            cout << "Wall signal " << robot.wallSignal() << endl;
-    */
-
-
-            /*
-          if (wallSignal > 0) {
-            cout << "Wall signal " << robot.wallSignal() << endl;
-
-            if (prevWallSignal == 0) {
-
-              Camera.grab();
-              Camera.retrieve (bgr_image);
-              cv::cvtColor(bgr_image, rgb_image, CV_RGB2BGR);
-              cv::imwrite("irobot_image.jpg", rgb_image);
-              cout << "Taking photo" << endl;
-
-            }
-          }
-            */
-            //prevWallSignal = wallSignal;
-            /*
-          if (robot.advanceButton ())
-          {
-            cout << "Advance button pressed" << endl;
-            speed = -1 * speed;
-            ledColor += 10;
-            if (ledColor > 255)
-              ledColor = 0;
-
-            robot.sendDriveCommand (speed, Create::DRIVE_INPLACE_CLOCKWISE);
-            if (speed < 0)
-              robot.sendLedCommand (Create::LED_PLAY,
-                  ledColor,
-                  Create::LED_INTENSITY_FULL);
-            else
-              robot.sendLedCommand (Create::LED_ADVANCE,
-                  ledColor,
-                  Create::LED_INTENSITY_FULL);
-          }
-    */
-            // You can add more commands here.
-            //this_thread::sleep_for(chrono::milliseconds(100));
         }
 
         cout << "Play button pressed, stopping Robot" << endl;
