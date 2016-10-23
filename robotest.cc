@@ -27,7 +27,7 @@ using namespace std;
 #define FRONT_WALL_SEARCH_ROTATION_TIME_SLOT 50
 
 #define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 400
-#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 200
+#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 300
 
 
 #define SEARCHING_SPEED 50
@@ -455,44 +455,20 @@ int main ()
 
                                             if( g_surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD)
                                             {
-                                                g_alignRight = 2;
+                                                g_alignRight = 4;
                                             }
                                             else
                                             {
                                                 if (g_wallSigMgr.isIncreasing())
                                                     g_alignLeft = 1;
                                                 else
-                                                    g_alignRight = 1;
+                                                    g_alignRight = 2;
                                             }
 
                                         }
 
                                     }
 
-                                    /*
-                                    if(g_consecutiveOperation < 4)
-                                    {
-                                        robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
-                                        g_consecutiveOperation++;
-                                    }
-                                    else
-                                    {
-                                        g_consecutiveOperation=0;
-
-                                        if( g_surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD)
-                                        {
-                                            robot.sendDriveCommand(ALIGNMENT_SPEED*2, Create::DRIVE_INPLACE_CLOCKWISE);
-                                        }
-                                        else
-                                        {
-                                            if (g_wallSigMgr.isIncreasing())
-                                                robot.sendDriveCommand(ALIGNMENT_SPEED,Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-                                            else
-                                                robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
-                                        }
-
-
-                                    }*/
 
                                 }
 
