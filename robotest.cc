@@ -26,7 +26,7 @@ using namespace std;
 #define SEARCHING_SPEED 50
 #define FOLLOW_WALL_SPEED 50
 #define ALIGNMENT_SPEED 25
-#define ALIGNMENT_THRESHOLD 0.9
+#define ALIGNMENT_THRESHOLD 0.7
 
 
 
