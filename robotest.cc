@@ -19,8 +19,8 @@ using namespace LibSerial;
 using namespace std;
 
 #define WALL_SENSOR_MIN 4
-#define DEFAULT_BACKUP_TIME_SLOT 50
-#define DEFAULT_BACKUP_TIME_SLOT_ESCAPE 10
+#define DEFAULT_BACKUP_TIME_SLOT 75
+#define DEFAULT_BACKUP_TIME_SLOT_ESCAPE 75
 #define DEFAULT_ROTATION_TIME_SLOT 5
 
 #define SEARCHING_SPEED 50
@@ -364,8 +364,27 @@ int main ()
                         }
                         else
                         {
-                            robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                            if (g_surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                g_navigationStatus = NS_ALIGN;
+                            }
+                            else
+                            {
+                                robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                            }
                         }
+
+                        break;
+                    }
+
+                    case NS_ALIGN:
+                    {
+                        if(robot.bumpLeft() || robot.bumpRight() )
+                        {
+                            g_navigationStatus = NS_SEARCHING; // TODO  change this logic
+                        }
+
 
                         break;
                     }
