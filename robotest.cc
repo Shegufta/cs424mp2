@@ -33,7 +33,7 @@ using namespace std;
 class WallSignalManager
 {
 private:
-    const int WALL_SIGNAL_HISTORY_SIZE = 4;
+    static const int WALL_SIGNAL_HISTORY_SIZE = 4;
 public:
     short wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE];
 
