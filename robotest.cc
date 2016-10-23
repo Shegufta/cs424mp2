@@ -474,6 +474,7 @@ int main ()
 
                             if(0 == g_backupTimeSlot)
                             {
+                                cout << " inside NS_SEARCH_FRONT_WALL,  backoff end, now it will start rotating counter clockwise"<<endl;
                                 robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                                 g_rotationTimeSlot = FRONT_WALL_SEARCH_ROTATION_TIME_SLOT;
                             }
@@ -487,8 +488,8 @@ int main ()
 
                             if(0 == g_rotationTimeSlot)
                             {
+                                cout << " inside NS_SEARCH_FRONT_WALL,  counterclockwise rotation end...."<<endl;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                g_navigationStatus = NS_SEARCHING;
                             }
                             break;
                         }
@@ -496,6 +497,7 @@ int main ()
 
                         if(robot.bumpLeft() )
                         {
+                            cout << " inside NS_SEARCH_FRONT_WALL,  BUMP LEFT"<<endl;
                             g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
                             break;
                         }
@@ -538,6 +540,7 @@ int main ()
 
                             if(0 == g_backupTimeSlot)
                             {
+                                cout << " inside NS_SEARCH_RIGHT_WALL,  forwording end, now it will start rotating clockwise"<<endl;
                                 robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                                 g_rotationTimeSlot = RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT;
                             }
@@ -550,13 +553,14 @@ int main ()
 
                             if(0 == g_rotationTimeSlot)
                             {
+                                cout << " inside NS_SEARCH_RIGHT_WALL,  clockwise rotation end...."<<endl;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                g_navigationStatus = NS_SEARCHING;
                             }
                         }
 
                         if(robot.bumpLeft() )
                         {
+                            cout << " inside NS_SEARCH_RIGHT_WALL,  BUMP LEFT"<<endl;
                             g_navigationStatus = NS_SEARCHING;
                             g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
                             g_rotationTimeSlot = 0;
