@@ -468,7 +468,7 @@ int main ()
                                                 if (g_wallSigMgr.isIncreasing())
                                                     g_alignLeft = 1;
                                                 else
-                                                    g_alignRight = 2;
+                                                    g_alignRight = 1;
                                             }
 
                                         }
