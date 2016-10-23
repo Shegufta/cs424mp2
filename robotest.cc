@@ -552,6 +552,14 @@ int main ()
                         }
                         else if(0 < g_backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
                         {
+                            if(robot.bumpLeft() || robot.bumpRight())
+                            {
+                                g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
+                                g_navigationStatus = NS_SEARCHING;
+                                break;
+                            }
+
+
                             robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             g_backupTimeSlot--;
 
