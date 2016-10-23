@@ -29,6 +29,8 @@ using namespace std;
 #define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 400
 #define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 350
 
+#define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 2;
+
 
 #define SEARCHING_SPEED 50
 #define FOLLOW_WALL_SPEED 50
@@ -412,6 +414,13 @@ int main ()
                         {
                             robot.sendDriveCommand (-ALIGNMENT_SPEED, Create::DRIVE_STRAIGHT);
                             g_backupTimeSlot--;
+                            g_rotationTimeSlot = NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT;
+                        }
+                        else if((0 == g_backupTimeSlot) && (0 < g_rotationTimeSlot) )
+                        {
+
+                            robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                            g_rotationTimeSlot--;
                         }
                         else
                         {
