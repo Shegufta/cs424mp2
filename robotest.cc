@@ -19,7 +19,8 @@ using namespace LibSerial;
 using namespace std;
 
 #define WALL_SENSOR_MIN 4
-#define DEFAULT_BACKUP_TIME_SLOT 75
+#define MID_BACKUP_TIME_SLOT 75
+#define SHORT_BACKUP_TIME_SLOT 50
 #define DEFAULT_BACKUP_TIME_SLOT_ESCAPE 75
 #define DEFAULT_ROTATION_TIME_SLOT 5
 
@@ -270,11 +271,11 @@ int main ()
 
                         if(robot.bumpLeft() )
                         {
-                            if(g_wallSigMgr.getAverage()< WALL_SENSOR_MIN)
+                            if(g_wallSigMgr.isNoWallSignal())
                             {
                                 g_navigationStatus = NS_SURVEY;
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT;
+                                g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
                             }
 
                             else
@@ -289,16 +290,22 @@ int main ()
                         }
                         else if(robot.bumpRight())
                         {
-                            if(g_wallSigMgr.getAverage() < WALL_SENSOR_MIN)
+                            if(g_wallSigMgr.isNoWallSignal())
                             {
+                                g_backupTimeSlot = SHORT_BACKUP_TIME_SLOT;
+
                                 g_navigationStatus = NS_SURVEY;
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = false;
+
                             }
                             else
+                            {
+                                g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
                                 g_navigationStatus = NS_PRE_SURVEY;
+                            }
 
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT;
+
                         }
                         else
                         {
@@ -339,7 +346,7 @@ int main ()
                     {
                         if(0 < g_backupTimeSlot)
                         {
-                            robot.sendDriveCommand (-DEFAULT_BACKUP_TIME_SLOT, Create::DRIVE_STRAIGHT);
+                            robot.sendDriveCommand (-MID_BACKUP_TIME_SLOT, Create::DRIVE_STRAIGHT);
                             g_backupTimeSlot--;
                         }
                         else
@@ -362,7 +369,7 @@ int main ()
                         //CONDITION FOR THE FIRST TIME : g_NS_SURVEY_ISwallAvgHighValueSeen = false;
                         if(0 < g_backupTimeSlot)
                         {
-                            robot.sendDriveCommand (-DEFAULT_BACKUP_TIME_SLOT, Create::DRIVE_STRAIGHT);
+                            robot.sendDriveCommand (-MID_BACKUP_TIME_SLOT, Create::DRIVE_STRAIGHT);
                             g_backupTimeSlot--;
                         }
                         else
@@ -373,7 +380,7 @@ int main ()
 
                             g_surveyManagerPtr->pushSurveyData(wallSignal);
 
-                            if(WALL_SENSOR_MIN <= g_wallSigMgr.getAverage())
+                            if ((!g_NS_SURVEY_ISwallAvgHighValueSeen)&&(!g_wallSigMgr.isNoWallSignal()))
                                 g_NS_SURVEY_ISwallAvgHighValueSeen = true;
 
 
@@ -418,13 +425,13 @@ int main ()
                         {
 
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            g_backupTimeSlot = DEFAULT_BACKUP_TIME_SLOT;
+                            g_backupTimeSlot = MID_BACKUP_TIME_SLOT;
                             g_navigationStatus = NS_PRE_SURVEY;
 
                         }
                         else
                         {
-                            if(g_wallSigMgr.getAverage() < WALL_SENSOR_MIN)
+                            if(g_wallSigMgr.isNoWallSignal())
                             {
                                 //turn right
                             }
