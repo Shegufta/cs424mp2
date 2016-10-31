@@ -199,7 +199,7 @@ int calculateTimeSlot(double slotDuration_mSec, double velocity_mmPerSec, double
 {
     int slot;
 
-    double time_mSec = (velocity_mmPerSec/ distance_mm)*1000.0;
+    double time_mSec = (distance_mm/velocity_mmPerSec)*1000.0;
 
     slot = ceil( time_mSec / slotDuration_mSec );
 
@@ -305,6 +305,7 @@ void navigate(void* _robot)
                     {
                         if(0 < backupTimeSlot)
                         {
+                            cout << backupTimeSlot <<endl;
                             robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             backupTimeSlot--;
                             break;
