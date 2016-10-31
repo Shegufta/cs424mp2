@@ -247,7 +247,7 @@ void navigate(void* _robot)
     const int NS_SURVEY_SLOT_MAX = 1000; // set it for a 360 degree
     const int CLOCK_WISE_RADIOUS = -10;
     const int ANTICLOCK_WISE_RADIOUS = 10;
-    const int SEARCH_RIGHT_WALL_RADIOUS = -150;
+    const int SEARCH_RIGHT_WALL_RADIOUS = -180;
 
 
     const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 8;
