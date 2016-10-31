@@ -479,6 +479,7 @@ void navigate(void* _robot)
 
                         if(0 < backupTimeSlot)
                         {
+                            cout<<"\tbackupTimeSlot = "<<backupTimeSlot<<endl;
                             backupTimeSlot--;
 
                             robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
@@ -490,7 +491,7 @@ void navigate(void* _robot)
                         }
                         else if(0 < rotationTimeSlot)
                         {
-                            cout << "rotationTimeSlot = "<< rotationTimeSlot<<endl;
+                            cout << "\trotationTimeSlot = "<< rotationTimeSlot<<endl;
                             rotationTimeSlot--;
 
                             robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
@@ -531,6 +532,7 @@ void navigate(void* _robot)
                             }
                             else
                             {
+
                                 robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_RIGHT_WALL_RADIOUS);
                             }
 
