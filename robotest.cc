@@ -242,7 +242,7 @@ void navigate(void* _robot)
 
 
     const int SEARCHING_SPEED = 100;
-    const int MID_BACKUP_DIST_mm = 50;
+    const int MID_BACKUP_DIST_mm = 40;
     const int SEARCH_R_WALL_ForwardDist_mm = 100;
     const int NS_SURVEY_SLOT_MAX = 1000; // set it for a 360 degree
     const int CLOCK_WISE_RADIOUS = -10;
@@ -439,11 +439,14 @@ void navigate(void* _robot)
 
                             if (NS_SURVEY_ISwallAvgHighValueSeen && (wallSigMgr.getAverage() < WALL_SENSOR_MIN))
                             {
-                                ns_survey_slotCount = 0;
+
                                 NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
+
                                 surveyManagerPtr->finalizeSurvey();
+
+                                ns_survey_slotCount = 0;
                                 navigationStatus = NS_POST_SURVEY_ALIGN;
 
                             }else {
@@ -460,21 +463,35 @@ void navigate(void* _robot)
                         break;
                     }
                     case NS_POST_SURVEY_ALIGN:
-                    {
+                    {//condition ns_survey_slotCount = 0;
 
-                        if (surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
-                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
-                        else
+                        if (ns_survey_slotCount < NS_SURVEY_SLOT_MAX)
                         {
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            navigationStatus = NS_FOLLOW_WALL;
-                            consecutiveOperation = 0;
-                            backupTimeSlot = 0;
-                            alignLeft = 0;
-                            alignRight = 0;
+                            ns_survey_slotCount++;
+
+
+                            if (surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
+                                robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                            else
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                navigationStatus = NS_FOLLOW_WALL;
+                                consecutiveOperation = 0;
+                                backupTimeSlot = 0;
+                                alignLeft = 0;
+                                alignRight = 0;
+
+                            }
+                            break;
 
                         }
-                        break;
+                        else
+                        {// search for atleast 360 degree... if no wall found, go to SEARCH state
+                            ns_survey_slotCount = 0;
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            navigationStatus = NS_SEARCHING;
+                        }
+
                     }
                     case NS_SEARCH_RIGHT_WALL:
                     {//rotationTimeSlot = some value;
