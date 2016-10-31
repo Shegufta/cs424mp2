@@ -196,7 +196,6 @@ enum NAVIGATION_STATUS
     NS_SURVEY,
     NS_POST_SURVEY_ALIGN,
     NS_FOLLOW_WALL,
-    NS_ALIGN_WALL,
     NS_SEARCH_FRONT_WALL,
     NS_SEARCH_RIGHT_WALL
 };
@@ -246,6 +245,9 @@ void navigate(void* _robot)
     const int NS_SURVEY_SLOT_MAX = 1000; // set it for a 360 degree
     const int CLOCK_WISE_RADIOUS = -10;
     const int ANTICLOCK_WISE_RADIOUS = 10;
+    const int SEARCH_RIGHT_WALL_RADIOUS = 5;
+
+
     const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 8;
 
 
@@ -471,8 +473,10 @@ void navigate(void* _robot)
                         }
                         break;
                     }
-                    case NS_ALIGN_WALL:
-                    {
+                    case NS_SEARCH_RIGHT_WALL:
+                    {//rotationTimeSlot = some value;
+                        //backupTimeSlot = some value;
+
                         if(0 < backupTimeSlot)
                         {
                             backupTimeSlot--;
@@ -484,6 +488,54 @@ void navigate(void* _robot)
 
                             break;
                         }
+                        else if(0 < rotationTimeSlot)
+                        {
+                            rotationTimeSlot--;
+
+                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+                            if(0 == rotationTimeSlot)
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                            break;
+                        }
+                        else
+                        {
+
+                            if(robot.bumpLeft())
+                            {
+                                cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_SEARCH_RIGHT_WALL"<<endl;
+                                //TODO: search for front wall
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            }
+                            else if(robot.bumpRight())
+                            {
+                                if(wallSigMgr.isNoWallSignal())
+                                {
+                                    cout << "\tinside NS_SEARCH_RIGHT_WALL, GO TO -> NS_SURVEY"<<endl;
+                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+
+                                    navigationStatus = NS_SURVEY;
+                                    NS_SURVEY_ISwallAvgHighValueSeen = false;
+                                    ns_survey_slotCount = 0;
+
+                                }
+                                else
+                                {
+                                    cout << "\tinside NS_SEARCH_RIGHT_WALL, GO TO -> NS_PRE_SURVEY"<<endl;
+                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                                    navigationStatus = NS_PRE_SURVEY;
+                                }
+
+                            }
+                            else
+                            {
+                                robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_RIGHT_WALL_RADIOUS);
+                            }
+
+                            break;
+                        }
+
 
                         break;
                     }
@@ -501,24 +553,30 @@ void navigate(void* _robot)
                         }
                         else if(robot.bumpRight())
                         {
+                            cout<<"BUMP RIGHT inside NS_FOLLOW_WALL"<<endl;
+
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
                             if(wallSigMgr.isNoWallSignal())
                             {
+                                cout<<"\tNO WALL SIGNAL :: Search for right wall"<<endl;
 
-                                //TODO: may be start of right wall
+                                rotationTimeSlot = RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
+                                backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
+                                navigationStatus = NS_SEARCH_RIGHT_WALL;
                             }
                             else
                             {// if there is wall signal, do the pre-survay thing
                                 //TODO: adjust the threshold
-                                cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
+                                cout << "\t WALL signal found....  GO TO -> NS_PRE_SURVEY"<<endl;
+
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                 navigationStatus = NS_PRE_SURVEY;
                             }
 
 
-                            cout<<"BUMP RIGHT :: NS_FOLLOW_WALL  - >  rotate counter clockwise"<<endl;
-                            backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+
+
                         }
                         else
 
@@ -548,17 +606,30 @@ void navigate(void* _robot)
                                     consecutiveOperation=0;
                                     robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
-                                    if( (LOWER_BOUND_OF_VALID_THRESHOLD <=surveyManagerPtr->getSignalStrength(wallSignal) ) && (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
+                                    if(wallSigMgr.isNoWallSignal())
                                     {
-                                        alignRight = 4;
+                                        cout<<"\tNO WALL SIGNAL :: Search for right wall"<<endl;
+
+                                        rotationTimeSlot = 0;
+                                        backupTimeSlot = 0; // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
+                                        navigationStatus = NS_SEARCH_RIGHT_WALL;
                                     }
                                     else
                                     {
-                                        if (wallSigMgr.isIncreasing())
-                                            alignLeft = 1;
+                                        if( (LOWER_BOUND_OF_VALID_THRESHOLD <=surveyManagerPtr->getSignalStrength(wallSignal) ) && (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
+                                        {
+                                            alignRight = 4;
+                                        }
                                         else
-                                            alignRight = 1;
+                                        {
+                                            if (wallSigMgr.isIncreasing())
+                                                alignLeft = 1;
+                                            else
+                                                alignRight = 1;
+                                        }
+
                                     }
+
 
                                 }
 
@@ -735,6 +806,7 @@ void navigate(void* _robot)
                         break;
                     }
 
+                 /*
                     case NS_SEARCH_RIGHT_WALL:
                     {
                         if(rotationTimeSlot < 0)
@@ -829,6 +901,7 @@ void navigate(void* _robot)
 
                         break;
                     }
+                    */
 
                 }
 
