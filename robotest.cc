@@ -243,6 +243,7 @@ void navigate(void* _robot)
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 50;
+    const int SEARCH_R_WALL_ForwardDist_mm = 90;
     const int NS_SURVEY_SLOT_MAX = 1000; // set it for a 360 degree
     const int CLOCK_WISE_RADIOUS = -10;
     const int ANTICLOCK_WISE_RADIOUS = 10;
@@ -258,6 +259,7 @@ void navigate(void* _robot)
     NAVIGATION_STATUS navigationStatus;
     int consecutiveOperation = 0;
     int backupTimeSlot = 0;
+    int forwardTimeSlot = 0;
     int rotationTimeSlot = 0;
     bool NS_SURVEY_ISwallAvgHighValueSeen = false;
     int alignLeft = 0;
@@ -502,6 +504,17 @@ void navigate(void* _robot)
 
                             break;
                         }
+                        else if(0 < forwardTimeSlot)
+                        {
+                            forwardTimeSlot--;
+
+                            robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+
+                            if(0 == forwardTimeSlot)
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                            break;
+                        }
                         else
                         {
 
@@ -570,6 +583,7 @@ void navigate(void* _robot)
 
                                 rotationTimeSlot = RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
+                                forwardTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, SEARCH_R_WALL_ForwardDist_mm );
                                 navigationStatus = NS_SEARCH_RIGHT_WALL;
                             }
                             else
@@ -619,6 +633,7 @@ void navigate(void* _robot)
 
                                         rotationTimeSlot = 0;
                                         backupTimeSlot = 0; // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
+                                        forwardTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, SEARCH_R_WALL_ForwardDist_mm );
                                         navigationStatus = NS_SEARCH_RIGHT_WALL;
                                     }
                                     else
