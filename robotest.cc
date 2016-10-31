@@ -206,7 +206,7 @@ void navigate(void* _robot)
     int sleepMS = 5000;
     //robot.sendDriveCommand (200, Create::DRIVE_STRAIGHT);
     robot.sendDriveCommand (200, Create::DRIVE_INPLACE_CLOCKWISE);
-    robot.sendWaitAngleCommand(90);
+    //robot.sendWaitAngleCommand(90);
     cout<<"start sleep"<<endl;
     this_thread::sleep_for(chrono::milliseconds(sleepMS));
     cout<<"end sleep"<<endl;
