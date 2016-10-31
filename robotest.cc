@@ -224,11 +224,12 @@ void navigate(void* _robot)
 
 
 
+#if true
 
     int sleepMS = 10000;
     //robot.sendDriveCommand (200, Create::DRIVE_STRAIGHT);
     //robot.sendDriveCommand (200, Create::DRIVE_INPLACE_CLOCKWISE);
-    robot.sendDriveCommand (100, -100);
+    robot.sendDriveCommand (100, -200);
     cout<<"start sleep"<<endl;
     this_thread::sleep_for(chrono::milliseconds(sleepMS));
     cout<<"end sleep"<<endl;
@@ -237,7 +238,7 @@ void navigate(void* _robot)
 
 
     return;
-
+#endif
 
 
     const int SEARCHING_SPEED = 100;
