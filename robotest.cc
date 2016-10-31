@@ -666,7 +666,8 @@ void navigate(void* _robot)
         robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
 
     }
-    catch(boost::thread_interrupted&)
+    //catch(boost::thread_interrupted&)
+    catch(exception ex)
     {
     }
 
