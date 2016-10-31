@@ -317,7 +317,10 @@ void navigate(void* _robot)
                         if(robot.bumpRight() || robot.bumpLeft())
                         {
                             backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                            robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                         }
+                        else
+                            robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
 
                         ////////////////////////////////////////////////////
 
