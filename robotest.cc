@@ -63,14 +63,25 @@ using namespace std;
 class WallSignalManager
 {
 private:
-    static const int WALL_SIGNAL_HISTORY_SIZE = 4;
-public:
-    short wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE];
+    int WALL_SIGNAL_HISTORY_SIZE;
+    short* wallSignalHistoryArray = NULL;
 
-    WallSignalManager()
+public:
+
+    WallSignalManager(int _wallSigHistorySize)
     {
+        WALL_SIGNAL_HISTORY_SIZE = _wallSigHistorySize;
+
+        wallSignalHistoryArray = new short[WALL_SIGNAL_HISTORY_SIZE];
+
         for(int i=0 ; i<WALL_SIGNAL_HISTORY_SIZE ; i++)
             wallSignalHistoryArray[i] = 0;
+    }
+
+    ~WallSignalManager()
+    {
+        delete[] wallSignalHistoryArray;
+        wallSignalHistoryArray = NULL;
     }
 
     void appendHistory(short currentWallSignal)
@@ -235,6 +246,7 @@ void navigate(void* _robot)
     const int NS_SURVEY_SLOT_MAX = 1000; // set it for a 360 degree
     const int CLOCK_WISE_RADIOUS = -10;
     const int ANTICLOCK_WISE_RADIOUS = 10;
+    const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 8;
 
 
     int ns_survey_slotCount = 0;
@@ -253,7 +265,7 @@ void navigate(void* _robot)
 
 
     SurveyManager *surveyManagerPtr = NULL;
-    WallSignalManager wallSigMgr;
+    WallSignalManager wallSigMgr(FOLLOW_WALL_CHECK_SIGNAL_INTERVAL);
 
     navigationStatus = NS_SEARCHING;
     surveyManagerPtr = NULL;
@@ -526,7 +538,7 @@ void navigate(void* _robot)
                             }
                             else
                             {
-                                if(consecutiveOperation < 4)
+                                if(consecutiveOperation < FOLLOW_WALL_CHECK_SIGNAL_INTERVAL)
                                 {
                                     robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
                                     consecutiveOperation++;
