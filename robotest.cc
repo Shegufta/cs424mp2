@@ -51,7 +51,7 @@ using namespace std;
 //#define SURVEY_SPEED 50
 //#define ALIGNMENT_SPEED 50
 
-#define SEARCHING_SPEED 100
+//#define SEARCHING_SPEED 100
 #define FOLLOW_WALL_SPEED 100
 #define SURVEY_SPEED 100
 #define ALIGNMENT_SPEED 100
@@ -195,6 +195,16 @@ void navigate(void*);
 
 ///////////////////////////////////////////////////////////////////////////////
 
+int calculateTimeSlot(double slotDuration_mSec, double velocity_mmPerSec, double distance_mm)
+{
+    int slot;
+
+    double time_mSec = (velocity_mmPerSec/ distance_mm)*1000.0;
+
+    slot = ceil( time_mSec / slotDuration_mSec );
+
+    return slot;
+}
 
 void navigate(void* _robot)
 {
@@ -203,6 +213,7 @@ void navigate(void* _robot)
 
 
 
+    /*
     int sleepMS = 5000;
     //robot.sendDriveCommand (200, Create::DRIVE_STRAIGHT);
     //robot.sendDriveCommand (200, Create::DRIVE_INPLACE_CLOCKWISE);
@@ -215,8 +226,11 @@ void navigate(void* _robot)
 
 
     return;
+*/
 
 
+    const int SEARCHING_SPEED = 100;
+    const int MID_BACKUP_DIST_mm = 20;
 
 
 
@@ -293,10 +307,21 @@ void navigate(void* _robot)
                         {
                             robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             backupTimeSlot--;
-
                             break;
                         }
 
+
+
+                        ////////////////////////////////////////////////////
+
+                        if(robot.bumpRight() || robot.bumpLeft())
+                        {
+                            backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                        }
+
+                        ////////////////////////////////////////////////////
+
+                        /*
                         if(NULL != surveyManagerPtr)
                         {
                             delete surveyManagerPtr;
@@ -310,12 +335,12 @@ void navigate(void* _robot)
                             navigationStatus = NS_SEARCH_FRONT_WALL;
                             backupTimeSlot = MID_BACKUP_TIME_SLOT;
 
-                            /*
-                                cout << "NS_SURVEY"<<endl;
-                                navigationStatus = NS_SURVEY;
-                                NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                backupTimeSlot = MID_BACKUP_TIME_SLOT;
-                            */
+
+                                //cout << "NS_SURVEY"<<endl;
+                                //navigationStatus = NS_SURVEY;
+                                //NS_SURVEY_ISwallAvgHighValueSeen = false;
+                                //backupTimeSlot = MID_BACKUP_TIME_SLOT;
+
 
 
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
@@ -347,6 +372,7 @@ void navigate(void* _robot)
                         {
                             robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                         }
+                        */
 
                         break;
                     }
