@@ -490,6 +490,7 @@ void navigate(void* _robot)
                         }
                         else if(0 < rotationTimeSlot)
                         {
+                            cout << "rotationTimeSlot = "<< rotationTimeSlot<<endl;
                             rotationTimeSlot--;
 
                             robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
