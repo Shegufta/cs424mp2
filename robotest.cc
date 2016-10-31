@@ -217,7 +217,7 @@ void navigate(void* _robot)
     int sleepMS = 10000;
     //robot.sendDriveCommand (200, Create::DRIVE_STRAIGHT);
     //robot.sendDriveCommand (200, Create::DRIVE_INPLACE_CLOCKWISE);
-    robot.sendDriveCommand (200, -100);
+    robot.sendDriveCommand (200, 10);
     cout<<"start sleep"<<endl;
     this_thread::sleep_for(chrono::milliseconds(sleepMS));
     cout<<"end sleep"<<endl;
@@ -232,6 +232,8 @@ void navigate(void* _robot)
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 50;
     const int NS_SURVEY_SLOT_MAX = 1000; // set it for a 360 degree
+    const int CLOCK_WISE_RADIOUS = -10;
+    const int ANTICLOCK_WISE_RADIOUS = 10;
 
 
     int ns_survey_slotCount = 0;
