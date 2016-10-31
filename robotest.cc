@@ -504,6 +504,7 @@ void navigate(void* _robot)
                         else
                         {
 
+                            cout <<"\t else of NS_SEARCH_RIGHT_WALL"<<endl;
                             if(robot.bumpLeft())
                             {
                                 cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_SEARCH_RIGHT_WALL"<<endl;
@@ -532,6 +533,8 @@ void navigate(void* _robot)
                             }
                             else
                             {
+
+                                cout<<"rotate cloclwise"<<endl;
 
                                 robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_RIGHT_WALL_RADIOUS);
                             }
@@ -611,7 +614,7 @@ void navigate(void* _robot)
 
                                     if(wallSigMgr.isNoWallSignal())
                                     {
-                                        cout<<"\tNO WALL SIGNAL :: Search for right wall"<<endl;
+                                        cout<<"\t NO WALL SIGNAL without bump :: Search for right wall"<<endl;
 
                                         rotationTimeSlot = 0;
                                         backupTimeSlot = 0; // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
