@@ -185,6 +185,7 @@ enum NAVIGATION_STATUS
     NS_SURVEY,
     NS_POST_SURVEY_ALIGN,
     NS_FOLLOW_WALL,
+    NS_ALIGN_WALL,
     NS_SEARCH_FRONT_WALL,
     NS_SEARCH_RIGHT_WALL
 };
@@ -212,7 +213,7 @@ void navigate(void* _robot)
 
 
 
-
+/*
 
     int sleepMS = 10000;
     //robot.sendDriveCommand (200, Create::DRIVE_STRAIGHT);
@@ -226,7 +227,7 @@ void navigate(void* _robot)
 
 
     return;
-
+*/
 
 
     const int SEARCHING_SPEED = 100;
@@ -458,9 +459,103 @@ void navigate(void* _robot)
                         }
                         break;
                     }
+                    case NS_ALIGN_WALL:
+                    {
+                        if(0 < backupTimeSlot)
+                        {
+                            backupTimeSlot--;
+
+                            robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+
+                            if(0 == backupTimeSlot)
+                                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+
+                            break;
+                        }
+
+                        break;
+                    }
                     case NS_FOLLOW_WALL:
                     {// REQUIREMENT: consecutiveOperation = 0
 
+                        if(robot.bumpLeft())
+                        {
+
+                            //TODO: search for front wall
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            /////////cout<<"BUMP LEFT :: NS_FOLLOW_WALL  - >  NS_SEARCH_FRONT_WALL"<<endl;
+                            /////////////////////////////////////////////////////////////navigationStatus = NS_SEARCH_FRONT_WALL;
+                            ////backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                        }
+                        else if(robot.bumpRight())
+                        {
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                            if(wallSigMgr.isNoWallSignal())
+                            {
+
+                                //TODO: may be start of right wall
+                            }
+                            else
+                            {// if there is wall signal, do the pre-survay thing
+                                //TODO: adjust the threshold
+                                cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
+                                backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                                navigationStatus = NS_PRE_SURVEY;
+                            }
+
+
+                            cout<<"BUMP RIGHT :: NS_FOLLOW_WALL  - >  rotate counter clockwise"<<endl;
+                            backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                        }
+                        else
+
+                        {
+
+                            if(0 < alignLeft)
+                            {
+                                //robot.sendDriveCommand(ALIGNMENT_SPEED,Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                robot.sendDriveCommand(SEARCHING_SPEED, ANTICLOCK_WISE_RADIOUS);
+                                alignLeft--;
+                            }
+                            else if(0 < alignRight)
+                            {
+                                //robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                robot.sendDriveCommand(SEARCHING_SPEED, CLOCK_WISE_RADIOUS);
+                                alignRight--;
+                            }
+                            else
+                            {
+                                if(consecutiveOperation < 4)
+                                {
+                                    robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                    consecutiveOperation++;
+                                }
+                                else
+                                {
+                                    consecutiveOperation=0;
+                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                                    if( (LOWER_BOUND_OF_VALID_THRESHOLD <=surveyManagerPtr->getSignalStrength(wallSignal) ) && (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
+                                    {
+                                        alignRight = 4;
+                                    }
+                                    else
+                                    {
+                                        if (wallSigMgr.isIncreasing())
+                                            alignLeft = 1;
+                                        else
+                                            alignRight = 1;
+                                    }
+
+                                }
+
+                            }
+                        }
+
+
+
+                        /*
                         if(0 < backupTimeSlot)
                         {
                             backupTimeSlot--;
@@ -515,13 +610,13 @@ void navigate(void* _robot)
                                     if(0 < alignLeft)
                                     {
                                         //robot.sendDriveCommand(ALIGNMENT_SPEED,Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-                                        ///////////////////////////////////////////////////////robot.sendDriveCommand(SEARCHING_SPEED,Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                        robot.sendDriveCommand(SEARCHING_SPEED, ANTICLOCK_WISE_RADIOUS);
                                         alignLeft--;
                                     }
                                     else if(0 < alignRight)
                                     {
                                         //robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
-                                        ///////////////////////////////////////////////////////robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                        robot.sendDriveCommand(SEARCHING_SPEED, CLOCK_WISE_RADIOUS);
                                         alignRight--;
                                     }
                                     else
@@ -558,6 +653,7 @@ void navigate(void* _robot)
                             }
 
                         }
+                        */
 
                         break;
                     }
