@@ -239,6 +239,11 @@ namespace iRobot
                         | std::iostream::failbit
                         | std::iostream::badbit);
 
+    // Bugfix -- Tanvir Amin, tanviralamin@gmail.com, Oct 25, 2016
+    // iRobot Create's protocol is binary, but >> operator is later used to
+    // read characters. noskipws should be turned on to not skip whitespaces.
+    stream_ << std::noskipws;
+
     // Discard header and previous data.
     while (stream_.rdbuf ()->in_avail () > 0)
       stream_.ignore ();
@@ -921,6 +926,11 @@ namespace iRobot
     stream_.ignore ();
 
     std::stringstream ss;
+    // Bugfix -- Tanvir Amin, tanviralamin@gmail.com, Oct 25, 2016
+    // iRobot Create's protocol is binary, but >> operator is later used to
+    // read characters. noskipws should be turned on to not skip whitespaces.
+    ss << std::noskipws;
+
     unsigned char checksum = STREAM_HEADER;
     unsigned char size = 0;
 
