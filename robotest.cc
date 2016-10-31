@@ -15,29 +15,44 @@ using namespace iRobot;
 using namespace LibSerial;
 using namespace std;
 
+
+//if wall sensor's value is lower than this value, it will be considered as zero
 #define WALL_SENSOR_MIN 4
+
+#define CLIFF_SENSOR_THRESHOLD 10
+
 
 #define MID_BACKUP_TIME_SLOT 50
 #define SHORT_BACKUP_TIME_SLOT 50
 
-#define ESCAPE_BACKUP_TIME_SLOT 75
-#define ESCAPE_ROTATION_TIME_SLOT 50
 
-#define FRONT_WALL_SEARCH_BACKUP_TIME_SLOT 150
-#define FRONT_WALL_SEARCH_ROTATION_TIME_SLOT 150
+//#define FRONT_WALL_SEARCH_BACKUP_TIME_SLOT 150
+//#define FRONT_WALL_SEARCH_ROTATION_TIME_SLOT 150
 
-#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 500
-#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 350
-#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -15
+#define FRONT_WALL_SEARCH_BACKUP_TIME_SLOT 75
+#define FRONT_WALL_SEARCH_ROTATION_TIME_SLOT 75
 
-#define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 10
+//#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 500
+//#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 350
+//#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -15
 
+#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 250
+#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 175
+#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -7
 
+//#define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 10
+#define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 5
+#define SKIP_DUE_TO_OVERCURRENT_SLOT 0
 
-#define SEARCHING_SPEED 50
-#define FOLLOW_WALL_SPEED 50
-#define SURVEY_SPEED 50
-#define ALIGNMENT_SPEED 50
+//#define SEARCHING_SPEED 50
+//#define FOLLOW_WALL_SPEED 50
+//#define SURVEY_SPEED 50
+//#define ALIGNMENT_SPEED 50
+
+#define SEARCHING_SPEED 100
+#define FOLLOW_WALL_SPEED 100
+#define SURVEY_SPEED 100
+#define ALIGNMENT_SPEED 100
 
 #define ALIGNMENT_THRESHOLD 0.7
 #define OUTOF_CONTROL_THRESHOLD 0.4
@@ -172,6 +187,7 @@ enum NAVIGATION_STATUS
     NS_SEARCH_RIGHT_WALL
 };
 
+
 NAVIGATION_STATUS g_navigationStatus;
 int g_consecutiveOperation = 0;
 int g_backupTimeSlot = 0;
@@ -179,6 +195,8 @@ int g_rotationTimeSlot = 0;
 bool g_NS_SURVEY_ISwallAvgHighValueSeen = false;
 int g_alignLeft = 0;
 int g_alignRight = 0;
+int g_skipForOvercurrent = 0;
+
 
 
 SurveyManager *g_surveyManagerPtr = NULL;
@@ -186,43 +204,20 @@ WallSignalManager g_wallSigMgr;
 ///////////////////////////////////////////////////////////////////////////////
 
 
+void navigate(void*);
 
-int main ()
+
+void navigate(void* _robot)
 {
+    Create robot = *((Create*) _robot);
+
     g_navigationStatus = NS_SEARCHING;
     g_surveyManagerPtr = NULL;
 
-    char serial_loc[] = "/dev/ttyUSB0";
 
     try
     {
-        SerialStream stream (serial_loc, LibSerial::SerialStreamBuf::BAUD_57600);
-        cout << "Opened Serial Stream to" << serial_loc << endl;
-        this_thread::sleep_for(chrono::milliseconds(1000));
-        Create robot(stream);
-        cout << "Created iRobot Object" << endl;
-        robot.sendFullCommand();
-        cout << "Setting iRobot to Full Mode" << endl;
-        this_thread::sleep_for(chrono::milliseconds(1000));
-        cout << "Robot is ready" << endl;
-
-        // Let's stream some sensors.
-        Create::sensorPackets_t sensors;
-        sensors.push_back(Create::SENSOR_BUMPS_WHEELS_DROPS);
-        sensors.push_back(Create::SENSOR_WALL_SIGNAL);
-        sensors.push_back (Create::SENSOR_BUTTONS);
-
-        robot.sendStreamCommand (sensors);
-        cout << "Sent Stream Command" << endl;
-        // Let's turn!
         int speed = 50;
-        int ledColor = Create::LED_COLOR_GREEN;
-        //robot.sendDriveCommand (speed, Create::DRIVE_STRAIGHT);
-        //robot.sendLedCommand (Create::LED_PLAY, 0, 0);
-        //cout << "Sent Drive Command" << endl;
-
-
-
         int sleepTimeMS = 15;
 
         short wallSignal, prevWallSignal = 0;
@@ -232,12 +227,38 @@ int main ()
             short wallSignal = robot.wallSignal();
             g_wallSigMgr.appendHistory(wallSignal);
 
-            if(false)
+            bool wheeldropCaster =  robot.wheeldropCaster();
+            bool wheeldropLeft = robot.wheeldropLeft();
+            bool wheeldropRight = robot.wheeldropRight();
+
+            bool leftWheelOvercurrent = robot.leftWheelOvercurrent();
+            bool rightWheelOvercurrent = robot.rightWheelOvercurrent();
+
+
+            short cliffLeftSignal = robot.cliffLeftSignal();
+            short cliffRightSignal = robot.cliffRightSignal();
+            short cliffFrontLeftSignal = robot.cliffFrontLeftSignal();
+            short cliffFrontRightSignal = robot.cliffFrontRightSignal();
+
+            bool IsCliffSensorsOK = ((CLIFF_SENSOR_THRESHOLD < cliffLeftSignal) && (CLIFF_SENSOR_THRESHOLD<cliffRightSignal) && (CLIFF_SENSOR_THRESHOLD<cliffFrontLeftSignal)&& (CLIFF_SENSOR_THRESHOLD<cliffFrontRightSignal));
+            bool IsWheelDropOk = !(wheeldropCaster || wheeldropLeft || wheeldropRight);
+            bool IsOvercurrentOK = !(leftWheelOvercurrent || rightWheelOvercurrent);
+
+
+            if(!(IsCliffSensorsOK && IsWheelDropOk && IsOvercurrentOK))
             {// check sensors... drop sensor etc
+                cout <<"IsCliffSensorsOK = "<<IsCliffSensorsOK <<" | IsWheelDropOk = "<<IsWheelDropOk <<" | IsOvercurrentOK = "<<IsOvercurrentOK<<endl;
                 robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+                if(!IsOvercurrentOK)
+                    g_skipForOvercurrent = SKIP_DUE_TO_OVERCURRENT_SLOT;
+            }
+            else if(0 < g_skipForOvercurrent)
+            {
+                g_skipForOvercurrent--;
             }
             else
             {
+
                 switch(g_navigationStatus)
                 {
                     case NS_SEARCHING:
@@ -643,6 +664,57 @@ int main ()
 
         cout << "Play button pressed, stopping Robot" << endl;
         robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+
+    }
+    catch(boost::thread_interrupted&)
+    {
+    }
+
+
+
+}
+
+int main ()
+{
+
+    char serial_loc[] = "/dev/ttyUSB0";
+
+    try
+    {
+        SerialStream stream (serial_loc, LibSerial::SerialStreamBuf::BAUD_57600);
+        cout << "Opened Serial Stream to" << serial_loc << endl;
+        this_thread::sleep_for(chrono::milliseconds(1000));
+        Create robot(stream);
+        cout << "Created iRobot Object" << endl;
+        robot.sendFullCommand();
+        cout << "Setting iRobot to Full Mode" << endl;
+        this_thread::sleep_for(chrono::milliseconds(1000));
+        cout << "Robot is ready" << endl;
+
+        // Let's stream some sensors.
+        Create::sensorPackets_t sensors;
+        sensors.push_back(Create::SENSOR_BUMPS_WHEELS_DROPS);
+        sensors.push_back(Create::SENSOR_WALL_SIGNAL);
+        sensors.push_back (Create::SENSOR_BUTTONS);
+
+        sensors.push_back (Create::SENSOR_CLIFF_LEFT_SIGNAL);
+        sensors.push_back (Create::SENSOR_CLIFF_RIGHT_SIGNAL);
+        sensors.push_back (Create::SENSOR_CLIFF_FRONT_LEFT_SIGNAL);
+        sensors.push_back (Create::SENSOR_CLIFF_FRONT_RIGHT_SIGNAL );
+
+        sensors.push_back(Create::SENSOR_OVERCURRENTS);
+
+
+        robot.sendStreamCommand (sensors);
+        int ledColor = Create::LED_COLOR_GREEN;
+        //robot.sendDriveCommand (speed, Create::DRIVE_STRAIGHT);
+        //robot.sendLedCommand (Create::LED_PLAY, 0, 0);
+        //cout << "Sent Drive Command" << endl;
+        cout << "Sent Stream Command" << endl;
+        // Let's turn!
+
+        navigate((void*)&robot);
+
     }
     catch (InvalidArgument& e)
     {
