@@ -229,7 +229,7 @@ void navigate(void* _robot)
 */
 
 
-    const int SEARCHING_SPEED = 100;
+    const int SEARCHING_SPEED = 200;
     const int MID_BACKUP_DIST_mm = 50;
 
 
