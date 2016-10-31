@@ -308,6 +308,9 @@ void navigate(void* _robot)
                             cout << backupTimeSlot <<endl;
                             robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             backupTimeSlot--;
+
+                            if(0 == backupTimeSlot)
+                                this_thread::sleep_for(chrono::milliseconds(10000));
                             break;
                         }
 
@@ -319,6 +322,8 @@ void navigate(void* _robot)
                         {
                             backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                             robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+
+
                         }
                         else
                             robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
