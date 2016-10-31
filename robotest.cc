@@ -309,8 +309,10 @@ void navigate(void* _robot)
                             robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             backupTimeSlot--;
 
-                            if(0 == backupTimeSlot)
+                            if(0 == backupTimeSlot) {
+                                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                                 this_thread::sleep_for(chrono::milliseconds(10000));
+                            }
                             break;
                         }
 
