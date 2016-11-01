@@ -223,8 +223,8 @@ void navigate(void* _robot)
 
 #if true
 
-    const int SEARCHING_SPEED = 100;
-    int sleepTimeMS = 15;
+    const int temp_SEARCHING_SPEED = 100;
+    int temp_sleepTimeMS = 15;
 
     //int sleepMS = 10000;
     //robot.sendDriveCommand (200, Create::DRIVE_STRAIGHT);
@@ -240,8 +240,8 @@ void navigate(void* _robot)
     {
         counter++;
         cout << "counter = "<<counter<<endl;
-        robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-        this_thread::sleep_for(chrono::milliseconds(sleepTimeMS));
+        robot.sendDriveCommand(temp_SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+        this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
     }
 
     cout << "Play button pressed, stopping Robot" << endl;
