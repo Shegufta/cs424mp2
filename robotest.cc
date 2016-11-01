@@ -223,6 +223,18 @@ void g_AddPosition(NAVIGATION_STATUS _navStatus, int _timeSlotSpent)
     g_positionTrackerList.push_back(PositionTrackerTuple(_navStatus, _timeSlotSpent));
 }
 
+void g_printPositionLog()
+{
+    std::list<PositionTrackerTuple>::iterator it;
+
+
+    for (it=g_positionTrackerList.begin(); it != g_positionTrackerList.end(); ++it)
+    {
+        cout<<"state : "<<(*it).navStatus <<"  | timeSlot = "<<(*it).timeSlotSpent<<endl;
+    }
+
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 void navigate(void*);
 
@@ -1030,6 +1042,8 @@ void navigate(void* _robot)
 
         cout << "Play button pressed, stopping Robot" << endl;
         robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+
+        g_printPositionLog();
 
     }
     //catch(boost::thread_interrupted&)
