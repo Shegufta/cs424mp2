@@ -221,15 +221,30 @@ void navigate(void* _robot)
 
 
 
-#if false
+#if true
 
-    int sleepMS = 10000;
+    const int SEARCHING_SPEED = 100;
+    int sleepTimeMS = 15;
+
+    //int sleepMS = 10000;
     //robot.sendDriveCommand (200, Create::DRIVE_STRAIGHT);
     //robot.sendDriveCommand (200, Create::DRIVE_INPLACE_CLOCKWISE);
-    robot.sendDriveCommand (100, -200);
-    cout<<"start sleep"<<endl;
-    this_thread::sleep_for(chrono::milliseconds(sleepMS));
-    cout<<"end sleep"<<endl;
+    //robot.sendDriveCommand (100, -200);
+    //cout<<"start sleep"<<endl;
+    //this_thread::sleep_for(chrono::milliseconds(sleepMS));
+    //cout<<"end sleep"<<endl;
+    //robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+
+    int counter = 0;
+    while (!robot.playButton ())
+    {
+        counter++;
+        cout << "counter = "<<counter<<endl;
+        robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+        this_thread::sleep_for(chrono::milliseconds(sleepTimeMS));
+    }
+
+    cout << "Play button pressed, stopping Robot" << endl;
     robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
 
 
