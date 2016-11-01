@@ -714,7 +714,7 @@ void navigate(void* _robot)
 
                             } else
                             {
-                                robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                                ///////////////////////////////////////////////////////////////////////////////////////////robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             }
 
                         }
