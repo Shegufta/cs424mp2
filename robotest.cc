@@ -601,6 +601,8 @@ void navigate(void* _robot)
                     {//rotationTimeSlot = some value;
                         //backupTimeSlot = some value;
 
+                        cout <<"rotationTimeSlot  = "<<rotationTimeSlot <<endl;
+
                         if(0 < backupTimeSlot)
                         {
                             cout<<"\tbackupTimeSlot = "<<backupTimeSlot<<endl;
