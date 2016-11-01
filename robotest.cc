@@ -53,9 +53,9 @@ using namespace std;
 #define SURVEY_SPEED 100
 #define ALIGNMENT_SPEED 100
 
-#define ALIGNMENT_THRESHOLD 0.7
-#define OUTOF_CONTROL_THRESHOLD 0.4
-#define LOWER_BOUND_OF_VALID_THRESHOLD 0.3
+//#define ALIGNMENT_THRESHOLD 0.7
+//#define OUTOF_CONTROL_THRESHOLD 0.4
+//#define LOWER_BOUND_OF_VALID_THRESHOLD 0.3
 
 class WallSignalManager
 {
@@ -190,6 +190,7 @@ enum NAVIGATION_STATUS
 {
     NS_SEARCHING,
     NS_PRE_SURVEY,
+    NS_ALIGN_FOR_PRE_SURVEY, //it will be used only for the transition from NS_FOLLOW_WALL to NS_PRE_SURVEY... If robot is inside FOLLOW_WALL , bumpRight()==true and isWallSignal()==true, that means robot is to close to wall... so take a left-back, then hit forward to the wall
     NS_SURVEY,
     NS_POST_SURVEY_ALIGN,
     NS_FOLLOW_WALL,
@@ -253,6 +254,13 @@ void navigate(void* _robot)
     return;
 #endif
 
+    const int ALIGNMENT_THRESHOLD = 0.7;
+    //const int LOWER_BOUND_OF_VALID_THRESHOLD = 0.3;
+
+    const int INIT_OUTOF_CONTROL_THRESHOLD = 0.4;
+    int OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
+
+
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 40;
@@ -261,6 +269,9 @@ void navigate(void* _robot)
     const int CLOCK_WISE_RADIOUS = -10;
     const int ANTICLOCK_WISE_RADIOUS = 10;
     const int SEARCH_RIGHT_WALL_RADIOUS = -185;  // radious 185 is ok when the searching speed is 100mmps
+
+    const int REVERSE_ROTATION_RADIOUS = 100;
+    const int REVERSE_ROTATION_TIME_SLOT = 50;
 
     const int SEARCH_F_WALL_BACKUP_DIST_mm = 80;
     const int SEARCH_F_WALL_RADIOUS = 50;
@@ -667,6 +678,51 @@ void navigate(void* _robot)
 
                         break;
                     }
+                    case NS_ALIGN_FOR_PRE_SURVEY:
+                    {//rotationTimeSlot and backupTimeSlot
+                        if(0 < backupTimeSlot)
+                        {
+                            backupTimeSlot--;
+                            robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+
+
+                            if(0 == backupTimeSlot)
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                rotationTimeSlot = REVERSE_ROTATION_TIME_SLOT;
+                            }
+
+                            break;
+                        }
+                        else if(0 < rotationTimeSlot )
+                        {
+                            rotationTimeSlot--;
+
+                            robot.sendDriveCommand(-SEARCHING_SPEED, REVERSE_ROTATION_RADIOUS);
+
+                            if(0 == rotationTimeSlot)
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                        }
+                        else
+                        {
+                            if(robot.bumpLeft() || robot.bumpRight())
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                                navigationStatus = NS_PRE_SURVEY;
+
+
+                            } else
+                            {
+                                robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                            }
+
+                        }
+
+
+                        break;
+                    }
+
                     case NS_FOLLOW_WALL:
                     {// REQUIREMENT: consecutiveOperation = 0
 
@@ -700,7 +756,8 @@ void navigate(void* _robot)
                                 cout << "\t WALL signal found....  GO TO -> NS_PRE_SURVEY"<<endl;
 
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-                                navigationStatus = NS_PRE_SURVEY;
+                                rotationTimeSlot = 0;
+                                navigationStatus = NS_ALIGN_FOR_PRE_SURVEY;
                             }
 
                         }
@@ -743,7 +800,8 @@ void navigate(void* _robot)
                                     }
                                     else
                                     {
-                                        if( (LOWER_BOUND_OF_VALID_THRESHOLD <=surveyManagerPtr->getSignalStrength(wallSignal) ) && (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
+                                        //if( (LOWER_BOUND_OF_VALID_THRESHOLD <=surveyManagerPtr->getSignalStrength(wallSignal) ) && (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
+                                        if( (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
                                         {
                                             alignRight = 4;
                                         }
