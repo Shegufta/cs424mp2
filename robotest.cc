@@ -759,8 +759,8 @@ void navigate(void* _robot)
 
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                 rotationTimeSlot = 0;
-                                navigationStatus = NS_PRE_SURVEY;
-                                //navigationStatus = NS_ALIGN_FOR_PRE_SURVEY;
+                                //navigationStatus = NS_PRE_SURVEY;
+                                navigationStatus = NS_ALIGN_FOR_PRE_SURVEY;
 
                             }
 
