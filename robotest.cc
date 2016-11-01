@@ -513,12 +513,13 @@ void navigate(void* _robot)
                             ns_survey_slotCount++;
 
 
+                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<endl;
                             if (surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
                                 robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                             else
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                navigationStatus = NS_FOLLOW_WALL;
+                                ////////////////////////////////////////////////navigationStatus = NS_FOLLOW_WALL;
                                 consecutiveOperation = 0;
                                 backupTimeSlot = 0;
                                 alignLeft = 0;
