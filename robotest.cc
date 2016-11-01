@@ -246,7 +246,7 @@ void navigate(void* _robot)
     const int ANTICLOCK_WISE_RADIOUS = 10;
     const int SEARCH_RIGHT_WALL_RADIOUS = -185;  // radious 185 is ok when the searching speed is 100mmps
 
-    const int SEARCH_F_WALL_BACKUP_DIST_mm = 70;
+    const int SEARCH_F_WALL_BACKUP_DIST_mm = 80;
     const int SEARCH_F_WALL_RADIOUS = 50;
     const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 130;
 
@@ -807,145 +807,14 @@ void navigate(void* _robot)
                             else
                             {
 
-                                //robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_RIGHT_WALL_RADIOUS); // we are inside Search FRONT wall state, but once aligned with the Front wall, we are now moving Right to hit the right wall ( which is actually the front wall)
+                                robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_RIGHT_WALL_RADIOUS); // we are inside Search FRONT wall state, but once aligned with the Front wall, we are now moving Right to hit the right wall ( which is actually the front wall)
                             }
 
                             break;
                         }
-
-
-                        if(robot.bumpLeft() )
-                        {
-                            cout << " inside NS_SEARCH_FRONT_WALL,  BUMP LEFT"<<endl;
-                            backupTimeSlot = MID_BACKUP_TIME_SLOT;
-                            break;
-                        }
-                        else if ( robot.bumpRight() )
-                        {
-                            cout<<"inside NS_SEARCH_FRONT_WALL -> BUMP RIGHT : next State ->";
-                            if(wallSigMgr.isNoWallSignal())
-                            {
-                                cout << "NS_SURVEY"<<endl;
-                                backupTimeSlot = SHORT_BACKUP_TIME_SLOT;
-
-                                navigationStatus = NS_SURVEY;
-                                NS_SURVEY_ISwallAvgHighValueSeen = false;
-
-                            }
-                            else
-                            {
-                                cout << "NS_PRE_SURVEY"<<endl;
-                                backupTimeSlot = MID_BACKUP_TIME_SLOT;
-                                navigationStatus = NS_PRE_SURVEY;
-                            }
-
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-
-                            break;
-
-                        }
-
-                        robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
 
                         break;
                     }
-
-                 /*
-                    case NS_SEARCH_RIGHT_WALL:
-                    {
-                        if(rotationTimeSlot < 0)
-                        {
-                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-                            rotationTimeSlot++;
-
-
-                            if(0 == rotationTimeSlot)
-                            {
-                                cout << " inside NS_SEARCH_RIGHT_WALL,  COUNTER-clockwise rotation end...."<<endl;
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            }
-                            break;
-                        }
-                        else if(0 < backupTimeSlot) // NOTE: here backupTimeSlot is used to move forward. I have not declared another new variable !
-                        {
-                            if(robot.bumpLeft() || robot.bumpRight())
-                            {
-                                backupTimeSlot = MID_BACKUP_TIME_SLOT;
-                                navigationStatus = NS_SEARCHING;
-                                break;
-                            }
-
-
-                            robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
-                            backupTimeSlot--;
-
-                            cout <<"NS_SEARCH_RIGHT_WALL :: backupTimeSlot = "<<backupTimeSlot <<endl;
-
-                            if(0 == backupTimeSlot)
-                            {
-                                cout << " inside NS_SEARCH_RIGHT_WALL,  forwording end, now it will start rotating clockwise"<<endl;
-                                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
-                                rotationTimeSlot = RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT;
-                            }
-
-                            break;
-                        }
-                        else if(0 < rotationTimeSlot)
-                        {
-                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
-
-                            rotationTimeSlot--;
-
-                            if(0 == rotationTimeSlot)
-                            {
-                                cout << " inside NS_SEARCH_RIGHT_WALL,  clockwise rotation end...."<<endl;
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            }
-
-                            break;
-                        }
-
-                        if(robot.bumpLeft() )
-                        {
-                            cout << " inside NS_SEARCH_RIGHT_WALL,  BUMP LEFT"<<endl;
-                            navigationStatus = NS_SEARCHING;
-                            backupTimeSlot = MID_BACKUP_TIME_SLOT;
-                            rotationTimeSlot = 0;
-                            break;
-                        }
-                        else if(robot.bumpRight())
-                        {
-                            cout<<"inside NS_SEARCH_RIGHT_WALL -> BUMP RIGHT : next State ->";
-                            if(wallSigMgr.isNoWallSignal())
-                            {
-                                cout << "NS_SURVEY"<<endl;
-                                backupTimeSlot = SHORT_BACKUP_TIME_SLOT;
-
-                                navigationStatus = NS_SURVEY;
-                                NS_SURVEY_ISwallAvgHighValueSeen = false;
-
-                            }
-                            else
-                            {
-                                cout << "NS_PRE_SURVEY"<<endl;
-                                backupTimeSlot = MID_BACKUP_TIME_SLOT;
-                                navigationStatus = NS_PRE_SURVEY;
-                            }
-
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-
-                            break;
-
-                        }
-
-
-
-
-                        robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
-
-                        break;
-                    }
-                    */
 
                 }
 
