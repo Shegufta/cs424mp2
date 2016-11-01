@@ -709,12 +709,13 @@ void navigate(void* _robot)
                             }
                             else if(robot.bumpRight())
                             {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
                                 g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
                                 current_state_slotCount = 0;
 
                                 if(wallSigMgr.isNoWallSignal())
                                 {
-                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                     cout << "\tinside NS_SEARCH_RIGHT_WALL, else_if GO TO -> NS_SURVEY"<<endl;
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
 
@@ -726,7 +727,6 @@ void navigate(void* _robot)
                                 }
                                 else
                                 {
-                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                     cout << "\tinside NS_SEARCH_RIGHT_WALL, else_if GO TO -> NS_PRE_SURVEY"<<endl;
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                     navigationStatus = NS_PRE_SURVEY;
@@ -1042,7 +1042,7 @@ void navigate(void* _robot)
             }
 
 
-            cout << "Wall signal " << wallSignal << "     sleep time "<<sleepTimeMS << "    navStatus = " << navigationStatus<< endl;
+            //cout << "Wall signal " << wallSignal << "     sleep time "<<sleepTimeMS << "    navStatus = " << navigationStatus<< endl;
 
             this_thread::sleep_for(chrono::milliseconds(sleepTimeMS));
 
