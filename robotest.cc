@@ -264,7 +264,7 @@ void navigate(void* _robot)
 
     const int SEARCH_F_WALL_BACKUP_DIST_mm = 80;
     const int SEARCH_F_WALL_RADIOUS = 50;
-    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 130;
+    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 100;
 
 
     const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 8;
@@ -661,46 +661,6 @@ void navigate(void* _robot)
                         else
                         {
                             navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
-                            /*
-                            ///////////////////////////////--------------------/////////////////////////////////
-                            cout <<"\t else of NS_SEARCH_RIGHT_WALL"<<endl;
-                            if(robot.bumpLeft())
-                            {
-                                cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_SEARCH_RIGHT_WALL"<<endl;
-                                //TODO: search for front wall
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            }
-                            else if(robot.bumpRight())
-                            {
-                                if(wallSigMgr.isNoWallSignal())
-                                {
-                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                    cout << "\tinside NS_SEARCH_RIGHT_WALL, GO TO -> NS_SURVEY"<<endl;
-                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-
-                                    navigationStatus = NS_SURVEY;
-                                    NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                    ns_survey_slotCount = 0;
-
-                                }
-                                else
-                                {
-                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                    cout << "\tinside NS_SEARCH_RIGHT_WALL, GO TO -> NS_PRE_SURVEY"<<endl;
-                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-                                    navigationStatus = NS_PRE_SURVEY;
-                                }
-
-                            }
-                            else
-                            {
-
-                                cout<<"rotate cloclwise"<<endl;
-
-                                robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_RIGHT_WALL_RADIOUS);
-                            }
-                             */
-
                             break;
                         }
 
@@ -742,9 +702,6 @@ void navigate(void* _robot)
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                 navigationStatus = NS_PRE_SURVEY;
                             }
-
-
-
 
                         }
                         else
@@ -870,43 +827,6 @@ void navigate(void* _robot)
                         else
                         {
                             navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
-                            ///////////////////////////////////////////////////////////////////////////////////////////////////////
-                            /*
-                            if(robot.bumpLeft())
-                            {
-                                cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_SEARCH_RIGHT_WALL"<<endl;
-                                //TODO: search for front wall
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            }
-                            else if(robot.bumpRight())
-                            {
-                                if(wallSigMgr.isNoWallSignal())
-                                {
-                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                    cout << "\tinside NS_SEARCH_RIGHT_WALL, GO TO -> NS_SURVEY"<<endl;
-                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-
-                                    navigationStatus = NS_SURVEY;
-                                    NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                    ns_survey_slotCount = 0;
-
-                                }
-                                else
-                                {
-                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                    cout << "\tinside NS_SEARCH_RIGHT_WALL, GO TO -> NS_PRE_SURVEY"<<endl;
-                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-                                    navigationStatus = NS_PRE_SURVEY;
-                                }
-
-                            }
-                            else
-                            {
-
-                                robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_RIGHT_WALL_RADIOUS); // we are inside Search FRONT wall state, but once aligned with the Front wall, we are now moving Right to hit the right wall ( which is actually the front wall)
-                            }
-                            */
-
                             break;
                         }
 
