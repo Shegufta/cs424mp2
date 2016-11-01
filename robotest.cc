@@ -255,7 +255,7 @@ void navigate(void* _robot)
 #endif
 
     const int ALIGNMENT_THRESHOLD = 0.7;
-    //const int LOWER_BOUND_OF_VALID_THRESHOLD = 0.3;
+    const int LOWER_BOUND_OF_VALID_THRESHOLD = 0.3;
 
     const int INIT_OUTOF_CONTROL_THRESHOLD = 0.4;
     int OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
@@ -800,8 +800,8 @@ void navigate(void* _robot)
                                     }
                                     else
                                     {
-                                        //if( (LOWER_BOUND_OF_VALID_THRESHOLD <=surveyManagerPtr->getSignalStrength(wallSignal) ) && (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
-                                        if( (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
+                                        if( (LOWER_BOUND_OF_VALID_THRESHOLD <=surveyManagerPtr->getSignalStrength(wallSignal) ) && (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
+                                        //if( (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
                                         {
                                             alignRight = 4;
                                         }
