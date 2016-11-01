@@ -6,6 +6,7 @@
 #include <thread>
 #include <climits>
 #include <list>
+#include <map>
 #include <algorithm>
 //#include <raspicam/raspicam_cv.h>
 //#include <opencv2/imgproc/imgproc.hpp>
@@ -192,7 +193,7 @@ enum NAVIGATION_STATUS
 {
     NS_SEARCHING,
     NS_PRE_SURVEY,
-    NS_ALIGN_FOR_PRE_SURVEY, //it will be used only for the transition from NS_FOLLOW_WALL to NS_PRE_SURVEY... If robot is inside FOLLOW_WALL , bumpRight()==true and isWallSignal()==true, that means robot is to close to wall... so take a left-back, then hit forward to the wall
+    NS_MOVE_AWAY_FROM_WALL, //it will be used only for the transition from NS_FOLLOW_WALL to NS_PRE_SURVEY... If robot is inside FOLLOW_WALL , bumpRight()==true and isWallSignal()==true, that means robot is to close to wall... so take a left-back, then hit forward to the wall
     NS_SURVEY,
     NS_POST_SURVEY_ALIGN,
     NS_FOLLOW_WALL,
@@ -201,10 +202,14 @@ enum NAVIGATION_STATUS
     NS_SEARCH_RIGHT_WALL
 };
 
+std::map<NAVIGATION_STATUS,string> g_stateNameMap;
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 class PositionTrackerTuple
 {
+
 public:
     NAVIGATION_STATUS navStatus;
     int timeSlotSpent;
@@ -212,7 +217,10 @@ public:
     {
         navStatus = _navStatus;
         timeSlotSpent = _timeSlotSpent;
+
+
     }
+
 
 };
 
@@ -230,7 +238,7 @@ void g_printPositionLog()
 
     for (it=g_positionTrackerList.begin(); it != g_positionTrackerList.end(); ++it)
     {
-        cout<<"state : "<<(*it).navStatus <<"  | timeSlot = "<<(*it).timeSlotSpent<<endl;
+        cout<<"state : "<<g_stateNameMap[(*it).navStatus] <<"  | timeSlot = "<<(*it).timeSlotSpent<<endl;
     }
 
 }
@@ -763,7 +771,7 @@ void navigate(void* _robot)
 
                         break;
                     }
-                    case NS_ALIGN_FOR_PRE_SURVEY:
+                    case NS_MOVE_AWAY_FROM_WALL:
                     {//rotationTimeSlot and backupTimeSlot
                         current_state_slotCount++;
 
@@ -880,7 +888,7 @@ void navigate(void* _robot)
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                 rotationTimeSlot = 0;
                                 //navigationStatus = NS_PRE_SURVEY;
-                                navigationStatus = NS_ALIGN_FOR_PRE_SURVEY;
+                                navigationStatus = NS_MOVE_AWAY_FROM_WALL;
 
                             }
 
@@ -1057,6 +1065,33 @@ void navigate(void* _robot)
 
 int main ()
 {
+
+    /*
+    enum NAVIGATION_STATUS
+    {
+        NS_SEARCHING,
+        NS_PRE_SURVEY,
+        , //it will be used only for the transition from NS_FOLLOW_WALL to NS_PRE_SURVEY... If robot is inside FOLLOW_WALL , bumpRight()==true and isWallSignal()==true, that means robot is to close to wall... so take a left-back, then hit forward to the wall
+        NS_SURVEY,
+        ,
+        NS_FOLLOW_WALL,
+        NS_ROTATE_RIGHT_AND_SEARCH,
+        NS_SEARCH_FRONT_WALL,
+        NS_SEARCH_RIGHT_WALL
+    };
+    */
+
+    g_stateNameMap[NS_SEARCHING] = "NS_SEARCHING";
+    g_stateNameMap[NS_PRE_SURVEY] = "NS_PRE_SURVEY";
+    g_stateNameMap[NS_MOVE_AWAY_FROM_WALL] = "NS_MOVE_AWAY_FROM_WALL";
+    g_stateNameMap[NS_SURVEY] = "NS_SURVEY";
+    g_stateNameMap[NS_POST_SURVEY_ALIGN] = "NS_POST_SURVEY_ALIGN";
+    g_stateNameMap[NS_FOLLOW_WALL] = "NS_FOLLOW_WALL";
+    g_stateNameMap[NS_ROTATE_RIGHT_AND_SEARCH] = "NS_ROTATE_RIGHT_AND_SEARCH";
+    g_stateNameMap[NS_SEARCH_FRONT_WALL] = "NS_SEARCH_FRONT_WALL";
+    g_stateNameMap[NS_SEARCH_RIGHT_WALL] = "NS_SEARCH_RIGHT_WALL";
+
+
 
     char serial_loc[] = "/dev/ttyUSB0";
 
