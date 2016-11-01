@@ -35,9 +35,9 @@ using namespace std;
 //#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 350
 //#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -15
 
-#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 250
-#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 175
-#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -7
+//#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 250
+//#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 175
+//#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -7
 
 //#define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 10
 #define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 5
@@ -261,6 +261,7 @@ void navigate(void* _robot)
     double OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
 
 
+    const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 7;
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 40;
@@ -559,10 +560,10 @@ void navigate(void* _robot)
                             surveyManagerPtr = NULL;
                         }
 
-                        cout <<"\t else of NS_SEARCH_RIGHT_WALL"<<endl;
+                        cout <<"\t else of NS_ROTATE_RIGHT_AND_SEARCH"<<endl;
                         if(robot.bumpLeft())
                         {
-                            cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_SEARCH_RIGHT_WALL"<<endl;
+                            cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_ROTATE_RIGHT_AND_SEARCH"<<endl;
                             //TODO: search for front wall
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                         }
@@ -571,7 +572,7 @@ void navigate(void* _robot)
                             if(wallSigMgr.isNoWallSignal())
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                cout << "\tinside NS_SEARCH_RIGHT_WALL, GO TO -> NS_SURVEY"<<endl;
+                                cout << "\tinside NS_ROTATE_RIGHT_AND_SEARCH, GO TO -> NS_SURVEY"<<endl;
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
 
                                 navigationStatus = NS_SURVEY;
@@ -582,7 +583,7 @@ void navigate(void* _robot)
                             else
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                cout << "\tinside NS_SEARCH_RIGHT_WALL, GO TO -> NS_PRE_SURVEY"<<endl;
+                                cout << "\tinside NS_ROTATE_RIGHT_AND_SEARCH, GO TO -> NS_PRE_SURVEY"<<endl;
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                 navigationStatus = NS_PRE_SURVEY;
                             }
