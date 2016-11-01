@@ -508,6 +508,7 @@ void navigate(void* _robot)
                     case NS_POST_SURVEY_ALIGN:
                     {//condition ns_survey_slotCount = 0;
 
+
                         if (ns_survey_slotCount < NS_SURVEY_SLOT_MAX)
                         {
                             ns_survey_slotCount++;
