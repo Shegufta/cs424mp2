@@ -1071,7 +1071,7 @@ void navigate(void* _robot)
             }
 
 
-            //cout << "Wall signal " << wallSignal << "     sleep time "<<sleepTimeMS << "    navStatus = " << navigationStatus<< endl;
+            cout << "Wall signal " << wallSignal << "     sleep time "<<sleepTimeMS << "    navStatus = " << navigationStatus<< endl;
 
             this_thread::sleep_for(chrono::milliseconds(sleepTimeMS));
 
