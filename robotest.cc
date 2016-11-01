@@ -309,7 +309,7 @@ void navigate(void* _robot)
     const int SKIP_DUE_TO_OVERCURRENT_SLOT = 5;
     const int MAX_OVERCURRENT_SAFE_SLOT = 2;
     int overcurrentSlotCounter = 0;
-    //////////////////////////
+    ////////////////////////////
 
 
     int current_state_slotCount = 0;
