@@ -248,7 +248,7 @@ void navigate(void* _robot)
 
     const int SEARCH_F_WALL_BACKUP_DIST_mm = 100;
     const int SEARCH_F_WALL_RADIOUS = 50;
-    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 10;
+    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 100;
 
 
     const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 8;
