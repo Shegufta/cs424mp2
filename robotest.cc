@@ -459,6 +459,11 @@ void navigate(void* _robot)
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
 
 
+                                if(NULL != surveyManagerPtr)
+                                {
+                                    delete surveyManagerPtr;
+                                    surveyManagerPtr = NULL;
+                                }
 
                                 NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 rotationLimiter = 0;
@@ -525,6 +530,7 @@ void navigate(void* _robot)
                     case NS_SURVEY: {// Condition: when it will enter the NS_SURVEY mode FOR THE FIRST TIME, the condition  [ws_getAverage(wallSignal) < WALL_SENSOR_MIN)] will be true
                         //CONDITION FOR THE FIRST TIME : NS_SURVEY_ISwallAvgHighValueSeen = false;
                         //rotationLimiter = 0;
+                        // Make sure, surveyManagerPtr is a new instance, before moving to this state, free it and set it to null
 
                         current_state_slotCount++;
 
@@ -669,6 +675,12 @@ void navigate(void* _robot)
                                 cout << "\tinside NS_ROTATE_RIGHT_AND_SEARCH, GO TO -> NS_SURVEY"<<endl;
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
 
+                                if(NULL != surveyManagerPtr)
+                                {
+                                    delete surveyManagerPtr;
+                                    surveyManagerPtr = NULL;
+                                }
+
                                 navigationStatus = NS_SURVEY;
                                 NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 rotationLimiter = 0;
@@ -731,6 +743,12 @@ void navigate(void* _robot)
                                 {
                                     cout << "\tinside NS_SEARCH_RIGHT_WALL, else_if GO TO -> NS_SURVEY"<<endl;
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+
+                                    if(NULL != surveyManagerPtr)
+                                    {
+                                        delete surveyManagerPtr;
+                                        surveyManagerPtr = NULL;
+                                    }
 
                                     rotationLimiter = 0;
                                     navigationStatus = NS_SURVEY;
@@ -826,6 +844,13 @@ void navigate(void* _robot)
                                 if(wallSigMgr.isNoWallSignal())
                                 {
                                     cout << "\tGO TO -> NS_SURVEY"<<endl;
+
+                                    if(NULL != surveyManagerPtr)
+                                    {
+                                        delete surveyManagerPtr;
+                                        surveyManagerPtr = NULL;
+                                    }
+
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                     NS_SURVEY_ISwallAvgHighValueSeen = false;
                                     rotationLimiter = 0;
@@ -998,6 +1023,12 @@ void navigate(void* _robot)
                                 {
                                     robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+
+                                    if(NULL != surveyManagerPtr)
+                                    {
+                                        delete surveyManagerPtr;
+                                        surveyManagerPtr = NULL;
+                                    }
 
                                     navigationStatus = NS_SURVEY;
                                     NS_SURVEY_ISwallAvgHighValueSeen = false;
