@@ -696,6 +696,7 @@ void navigate(void* _robot)
 
                             break;
                         }
+                            
                         else if(0 < rotationTimeSlot )
                         {
                             rotationTimeSlot--;
