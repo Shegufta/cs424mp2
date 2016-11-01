@@ -254,11 +254,11 @@ void navigate(void* _robot)
     return;
 #endif
 
-    const int ALIGNMENT_THRESHOLD = 0.7;
-    const int LOWER_BOUND_OF_VALID_THRESHOLD = 0.3;
+    const double ALIGNMENT_THRESHOLD = 0.7;
+    const double LOWER_BOUND_OF_VALID_THRESHOLD = 0.3;
 
-    const int INIT_OUTOF_CONTROL_THRESHOLD = 0.4;
-    int OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
+    const double INIT_OUTOF_CONTROL_THRESHOLD = 0.4;
+    double OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
 
 
 
