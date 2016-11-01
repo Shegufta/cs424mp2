@@ -294,7 +294,7 @@ void navigate(void* _robot)
     const int SEARCH_RIGHT_WALL_RADIOUS = -185;  // radious 185 is ok when the searching speed is 100mmps
 
     const int REVERSE_ROTATION_RADIOUS = 100;
-    const int REVERSE_ROTATION_TIME_SLOT = 170;
+    const int REVERSE_ROTATION_TIME_SLOT = 150;
 
     const int SEARCH_F_WALL_BACKUP_DIST_mm = 80;
     const int SEARCH_F_WALL_RADIOUS = 50;
