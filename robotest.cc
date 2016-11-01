@@ -186,6 +186,8 @@ public:
 
 };
 
+
+
 enum NAVIGATION_STATUS
 {
     NS_SEARCHING,
@@ -200,6 +202,28 @@ enum NAVIGATION_STATUS
 };
 
 
+///////////////////////////////////////////////////////////////////////////////////
+class PositionTrackerTuple
+{
+public:
+    NAVIGATION_STATUS navStatus;
+    int timeSlotSpent;
+    PositionTrackerTuple(NAVIGATION_STATUS _navStatus, int _timeSlotSpent)
+    {
+        navStatus = _navStatus;
+        timeSlotSpent = _timeSlotSpent;
+    }
+
+};
+
+std::list<PositionTrackerTuple> g_positionTrackerList;
+
+void g_AddPosition(NAVIGATION_STATUS _navStatus, int _timeSlotSpent)
+{
+    g_positionTrackerList.push_back(PositionTrackerTuple(_navStatus, _timeSlotSpent));
+}
+
+//////////////////////////////////////////////////////////////////////////////////
 void navigate(void*);
 
 
@@ -261,7 +285,7 @@ void navigate(void* _robot)
     double OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
 
 
-    const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 7;
+    const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 15;
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 40;
@@ -282,7 +306,8 @@ void navigate(void* _robot)
     const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 8;
 
 
-    int ns_survey_slotCount = 0;
+    int current_state_slotCount = 0;
+    int rotationLimiter = 0;
 
 
     NAVIGATION_STATUS navigationStatus;
@@ -355,6 +380,8 @@ void navigate(void* _robot)
                 {
                     case NS_SEARCHING:
                     {
+                        current_state_slotCount++;
+
                         if(0 < backupTimeSlot)
                         {
                             backupTimeSlot--;
@@ -377,14 +404,20 @@ void navigate(void* _robot)
                         if(robot.bumpLeft() )
                         {
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            current_state_slotCount = 0;
                             backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
 
                             cout<<"NS_SEARCHING -> BUMP LEFT : next State ->  NS_SEARCH_FRONT_WALL";
+
                             navigationStatus = NS_SEARCH_FRONT_WALL;
                         }
                         else if(robot.bumpRight())
                         {
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                            g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            current_state_slotCount = 0;
 
                             cout<<"NS_SEARCHING -> BUMP RIGHT : next State ->";
                             if(wallSigMgr.isNoWallSignal())
@@ -392,9 +425,11 @@ void navigate(void* _robot)
                                 cout << "\tGO TO -> NS_SURVEY"<<endl;
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
 
-                                navigationStatus = NS_SURVEY;
+
+
                                 NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                ns_survey_slotCount = 0;
+                                rotationLimiter = 0;
+                                navigationStatus = NS_SURVEY;
 
                             }
                             else
@@ -418,6 +453,8 @@ void navigate(void* _robot)
 
                     case NS_PRE_SURVEY:
                     {
+                        current_state_slotCount++;
+
                         if(NULL != surveyManagerPtr)
                         {
                             delete surveyManagerPtr;
@@ -438,10 +475,14 @@ void navigate(void* _robot)
 
                             if(wallSigMgr.getAverage()< WALL_SENSOR_MIN)
                             {
+                                g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                current_state_slotCount = 0;
+
+
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 navigationStatus = NS_SURVEY;
                                 NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                ns_survey_slotCount = 0;
+                                rotationLimiter = 0;
                             }
                         }
 
@@ -450,7 +491,10 @@ void navigate(void* _robot)
 
                     case NS_SURVEY: {// Condition: when it will enter the NS_SURVEY mode FOR THE FIRST TIME, the condition  [ws_getAverage(wallSignal) < WALL_SENSOR_MIN)] will be true
                         //CONDITION FOR THE FIRST TIME : NS_SURVEY_ISwallAvgHighValueSeen = false;
-                        //ns_survey_slotCount = 0;
+                        //rotationLimiter = 0;
+
+                        current_state_slotCount++;
+
                         if (0 < backupTimeSlot)
                         {
                             robot.sendDriveCommand(-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
@@ -459,9 +503,9 @@ void navigate(void* _robot)
                             if (0 == backupTimeSlot)
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                         }
-                        else if (ns_survey_slotCount < NS_SURVEY_SLOT_MAX)
+                        else if (rotationLimiter < NS_SURVEY_SLOT_MAX)
                         {
-                            ns_survey_slotCount++;
+                            rotationLimiter++; // we will not count the backup time here !
 
                             if (NULL == surveyManagerPtr)
                                 surveyManagerPtr = new SurveyManager;
@@ -481,7 +525,9 @@ void navigate(void* _robot)
 
                                 surveyManagerPtr->finalizeSurvey();
 
-                                ns_survey_slotCount = 0;
+                                g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                current_state_slotCount=0;
+                                rotationLimiter = 0;
                                 navigationStatus = NS_POST_SURVEY_ALIGN;
 
                             }else {
@@ -499,20 +545,23 @@ void navigate(void* _robot)
                                 surveyManagerPtr = NULL;
                             }
 
-                            ns_survey_slotCount = 0;
+                            g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            current_state_slotCount = 0;
 
                             navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
+                            rotationLimiter = 0;
                         }
 
                         break;
                     }
                     case NS_POST_SURVEY_ALIGN:
-                    {//condition ns_survey_slotCount = 0;
+                    {//condition rotationLimiter = 0;
 
+                        current_state_slotCount++;
 
-                        if (ns_survey_slotCount < NS_SURVEY_SLOT_MAX)
+                        if (rotationLimiter < NS_SURVEY_SLOT_MAX)
                         {
-                            ns_survey_slotCount++;
+                            rotationLimiter++;
 
 
                             //cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD<<endl;
@@ -520,6 +569,10 @@ void navigate(void* _robot)
                                 robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                             else
                             {
+                                g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                current_state_slotCount = 0;
+
+                                rotationLimiter=0;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 navigationStatus = NS_FOLLOW_WALL;
                                 consecutiveOperation = 0;
@@ -542,7 +595,10 @@ void navigate(void* _robot)
                                 surveyManagerPtr = NULL;
                             }
 
-                            ns_survey_slotCount = 0;
+                            rotationLimiter = 0;
+
+                            g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            current_state_slotCount = 0;
 
                             navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
                             break;
@@ -554,6 +610,8 @@ void navigate(void* _robot)
 
                     case NS_ROTATE_RIGHT_AND_SEARCH:
                     {
+                        current_state_slotCount++;
+
                         if(NULL != surveyManagerPtr)
                         {
                             delete surveyManagerPtr;
@@ -569,6 +627,9 @@ void navigate(void* _robot)
                         }
                         else if(robot.bumpRight())
                         {
+                            g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            current_state_slotCount = 0;
+
                             if(wallSigMgr.isNoWallSignal())
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
@@ -577,7 +638,7 @@ void navigate(void* _robot)
 
                                 navigationStatus = NS_SURVEY;
                                 NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                ns_survey_slotCount = 0;
+                                rotationLimiter = 0;
 
                             }
                             else
@@ -602,6 +663,7 @@ void navigate(void* _robot)
                     {//rotationTimeSlot = some value;
                         //backupTimeSlot = some value;
 
+                        current_state_slotCount++;
                         cout <<"rotationTimeSlot  = "<<rotationTimeSlot <<endl;
 
                         if(0 < backupTimeSlot)
@@ -627,15 +689,19 @@ void navigate(void* _robot)
                             }
                             else if(robot.bumpRight())
                             {
+                                g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                current_state_slotCount = 0;
+
                                 if(wallSigMgr.isNoWallSignal())
                                 {
                                     robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                     cout << "\tinside NS_SEARCH_RIGHT_WALL, else_if GO TO -> NS_SURVEY"<<endl;
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
 
+                                    rotationLimiter = 0;
                                     navigationStatus = NS_SURVEY;
                                     NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                    ns_survey_slotCount = 0;
+                                    current_state_slotCount = 0;
 
                                 }
                                 else
@@ -676,6 +742,8 @@ void navigate(void* _robot)
                         }
                         else
                         {
+                            g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            current_state_slotCount = 0;
                             navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
                             break;
                         }
@@ -685,6 +753,8 @@ void navigate(void* _robot)
                     }
                     case NS_ALIGN_FOR_PRE_SURVEY:
                     {//rotationTimeSlot and backupTimeSlot
+                        current_state_slotCount++;
+
                         if(0 < backupTimeSlot)
                         {
                             backupTimeSlot--;
@@ -711,13 +781,39 @@ void navigate(void* _robot)
                         }
                         else
                         {
+
                             if(robot.bumpLeft() || robot.bumpRight())
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                                g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                current_state_slotCount = 0;
+
+                                cout<<"NS_SEARCHING -> BUMP RIGHT : next State ->";
+                                if(wallSigMgr.isNoWallSignal())
+                                {
+                                    cout << "\tGO TO -> NS_SURVEY"<<endl;
+                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                                    NS_SURVEY_ISwallAvgHighValueSeen = false;
+                                    rotationLimiter = 0;
+                                    navigationStatus = NS_SURVEY;
+
+                                }
+                                else
+                                {
+                                    cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
+                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                                    navigationStatus = NS_PRE_SURVEY;
+                                }
+
+                                /*
+                                g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                current_state_slotCount = 0;
+
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                 navigationStatus = NS_PRE_SURVEY;
-
-
+                                */
                             } else
                             {
                                 robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
@@ -731,13 +827,18 @@ void navigate(void* _robot)
 
                     case NS_FOLLOW_WALL:
                     {// REQUIREMENT: consecutiveOperation = 0
+                        current_state_slotCount++;
 
                         if(robot.bumpLeft())
                         {
 
                             //TODO: search for front wall
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            /////////cout<<"BUMP LEFT :: NS_FOLLOW_WALL  - >  NS_SEARCH_FRONT_WALL"<<endl;
+
+                            g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            current_state_slotCount = 0;
+
+
                             backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, SEARCH_F_WALL_BACKUP_DIST_mm );
                             navigationStatus = NS_SEARCH_FRONT_WALL;
                         }
@@ -746,6 +847,9 @@ void navigate(void* _robot)
                             cout<<"BUMP RIGHT inside NS_FOLLOW_WALL"<<endl;
 
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                            g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            current_state_slotCount = 0;
 
                             if(wallSigMgr.isNoWallSignal())
                             {
@@ -801,6 +905,9 @@ void navigate(void* _robot)
                                     {
                                         cout<<"\t NO WALL SIGNAL without bump :: Search for right wall"<<endl;
 
+                                        g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                        current_state_slotCount = 0;
+
                                         rotationTimeSlot = 0;
                                         backupTimeSlot = 0; // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
                                         forwardTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, SEARCH_R_WALL_ForwardDist_mm );
@@ -834,6 +941,7 @@ void navigate(void* _robot)
                     }
                     case NS_SEARCH_FRONT_WALL:
                     {
+                        current_state_slotCount++;
                         if(0 < backupTimeSlot)
                         {
                             backupTimeSlot--;
@@ -856,11 +964,18 @@ void navigate(void* _robot)
                             {
                                 //NOTE: this should not be happen... the maze should not be that complex... but if this happens, go to search state
                                 cout <<"\n\t\t EXCEPTION: this should not happen ! go to the  NS_SEARCHING state"<<endl;
+
+                                g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                current_state_slotCount = 0;
+
                                 navigationStatus = NS_SEARCHING;
                                 break;
                             }
                             else if(robot.bumpRight())
                             {
+                                g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                current_state_slotCount = 0;
+
                                 if(wallSigMgr.isNoWallSignal())
                                 {
                                     robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
@@ -868,7 +983,7 @@ void navigate(void* _robot)
 
                                     navigationStatus = NS_SURVEY;
                                     NS_SURVEY_ISwallAvgHighValueSeen = false;
-                                    ns_survey_slotCount = 0;
+                                    current_state_slotCount = 0;
 
                                 }
                                 else
@@ -892,6 +1007,9 @@ void navigate(void* _robot)
                         }
                         else
                         {
+                            g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            current_state_slotCount = 0;
+
                             navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
                             break;
                         }
