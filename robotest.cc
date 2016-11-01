@@ -306,8 +306,8 @@ void navigate(void* _robot)
     const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 8;
 
     //////////////////////////
-    const int SKIP_DUE_TO_OVERCURRENT_SLOT = 10;
-    const int MAX_OVERCURRENT_SAFE_SLOT = 5;
+    const int SKIP_DUE_TO_OVERCURRENT_SLOT = 5;
+    const int MAX_OVERCURRENT_SAFE_SLOT = 2;
     int overcurrentSlotCounter = 0;
     //////////////////////////
 
