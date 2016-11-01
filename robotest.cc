@@ -29,34 +29,6 @@ using namespace std;
 #define SHORT_BACKUP_TIME_SLOT 50
 
 
-//#define FRONT_WALL_SEARCH_BACKUP_TIME_SLOT 75
-//#define FRONT_WALL_SEARCH_ROTATION_TIME_SLOT 75
-
-//#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 500
-//#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 350
-//#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -15
-
-//#define RIGHT_WALL_SEARCH_FORWARD_TIME_SLOT 250
-//#define RIGHT_WALL_SEARCH_ROTATION_TIME_SLOT 175
-//#define RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT -7
-
-//#define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 10
-#define NS_FOLLOW_WALL_LEFT_BUMP_ROTATION_TIME_SLOT 5
-#define SKIP_DUE_TO_OVERCURRENT_SLOT 0
-
-//#define SEARCHING_SPEED 50
-//#define FOLLOW_WALL_SPEED 50
-//#define SURVEY_SPEED 50
-//#define ALIGNMENT_SPEED 50
-
-//#define SEARCHING_SPEED 100
-#define FOLLOW_WALL_SPEED 100
-#define SURVEY_SPEED 100
-#define ALIGNMENT_SPEED 100
-
-//#define ALIGNMENT_THRESHOLD 0.7
-//#define OUTOF_CONTROL_THRESHOLD 0.4
-//#define LOWER_BOUND_OF_VALID_THRESHOLD 0.3
 
 class WallSignalManager
 {
@@ -260,6 +232,12 @@ int calculateTimeSlot(double slotDuration_mSec, double velocity_mmPerSec, double
     return slot;
 }
 
+
+
+
+bool g_Is_Taking_Picture = false;
+
+
 void navigate(void* _robot)
 {
     Create robot = *((Create*) _robot);
@@ -322,12 +300,21 @@ void navigate(void* _robot)
     const int SEARCH_F_WALL_RADIOUS = 50;
     const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 100;
 
+    const int FOLLOW_WALL_SPEED = 100;
+
 
     const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 8;
+
+    //////////////////////////
+    const int SKIP_DUE_TO_OVERCURRENT_SLOT = 10;
+    const int MAX_OVERCURRENT_SAFE_SLOT = 5;
+    int overcurrentSlotCounter = 0;
+    //////////////////////////
 
 
     int current_state_slotCount = 0;
     int rotationLimiter = 0;
+
 
 
     NAVIGATION_STATUS navigationStatus;
@@ -350,6 +337,7 @@ void navigate(void* _robot)
     surveyManagerPtr = NULL;
 
 
+    g_Is_Taking_Picture = false;
     try
     {
 
@@ -359,7 +347,7 @@ void navigate(void* _robot)
             wallSigMgr.appendHistory(wallSignal);
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            /*
+
             bool wheeldropCaster =  robot.wheeldropCaster();
             bool wheeldropLeft = robot.wheeldropLeft();
             bool wheeldropRight = robot.wheeldropRight();
@@ -376,18 +364,40 @@ void navigate(void* _robot)
             bool IsCliffSensorsOK = ((CLIFF_SENSOR_THRESHOLD < cliffLeftSignal) && (CLIFF_SENSOR_THRESHOLD<cliffRightSignal) && (CLIFF_SENSOR_THRESHOLD<cliffFrontLeftSignal)&& (CLIFF_SENSOR_THRESHOLD<cliffFrontRightSignal));
             bool IsWheelDropOk = !(wheeldropCaster || wheeldropLeft || wheeldropRight);
             bool IsOvercurrentOK = !(leftWheelOvercurrent || rightWheelOvercurrent);
-             */
-            bool IsCliffSensorsOK = true;
-            bool IsWheelDropOk = true;
-            bool IsOvercurrentOK = true;
+
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if(!(IsCliffSensorsOK && IsWheelDropOk && IsOvercurrentOK))
+
+            if(g_Is_Taking_Picture)
+            {
+                // TODO: stop for taking picture
+                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+            }
+            else if(!(IsCliffSensorsOK && IsWheelDropOk && IsOvercurrentOK))
             {// check sensors... drop sensor etc
                 cout <<"IsCliffSensorsOK = "<<IsCliffSensorsOK <<" | IsWheelDropOk = "<<IsWheelDropOk <<" | IsOvercurrentOK = "<<IsOvercurrentOK<<endl;
-                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+
+
+                if(!(IsCliffSensorsOK && IsWheelDropOk))
+                {//if atleast one of them is creating problem, shutdown immediately
+                    robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+                    // TODO: turn on alarm
+                }
+
+
                 if(!IsOvercurrentOK)
-                    skipForOvercurrent = SKIP_DUE_TO_OVERCURRENT_SLOT;
+                {
+                    ++overcurrentSlotCounter;
+
+                    if(MAX_OVERCURRENT_SAFE_SLOT < overcurrentSlotCounter)
+                    {
+                        // TODO: turn on alarm
+                        robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+                        skipForOvercurrent = SKIP_DUE_TO_OVERCURRENT_SLOT;
+                        overcurrentSlotCounter = 0;
+                    }
+                }
+
             }
             else if(0 < skipForOvercurrent)
             {
@@ -395,6 +405,9 @@ void navigate(void* _robot)
             }
             else
             {
+                // TODO: turn OFF alarm
+
+                overcurrentSlotCounter = 0;
 
                 switch(navigationStatus)
                 {
@@ -825,15 +838,6 @@ void navigate(void* _robot)
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                     navigationStatus = NS_PRE_SURVEY;
                                 }
-
-                                /*
-                                g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-                                current_state_slotCount = 0;
-
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-                                navigationStatus = NS_PRE_SURVEY;
-                                */
                             } else
                             {
                                 robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
@@ -851,8 +855,6 @@ void navigate(void* _robot)
 
                         if(robot.bumpLeft())
                         {
-
-                            //TODO: search for front wall
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
                             g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
@@ -887,7 +889,6 @@ void navigate(void* _robot)
 
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                 rotationTimeSlot = 0;
-                                //navigationStatus = NS_PRE_SURVEY;
                                 navigationStatus = NS_MOVE_AWAY_FROM_WALL;
 
                             }
@@ -899,13 +900,11 @@ void navigate(void* _robot)
 
                             if(0 < alignLeft)
                             {
-                                //robot.sendDriveCommand(ALIGNMENT_SPEED,Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
                                 robot.sendDriveCommand(SEARCHING_SPEED, ANTICLOCK_WISE_RADIOUS);
                                 alignLeft--;
                             }
                             else if(0 < alignRight)
                             {
-                                //robot.sendDriveCommand(ALIGNMENT_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                                 robot.sendDriveCommand(SEARCHING_SPEED, CLOCK_WISE_RADIOUS);
                                 alignRight--;
                             }
@@ -923,8 +922,6 @@ void navigate(void* _robot)
 
                                     if(wallSigMgr.isNoWallSignal())
                                     {
-                                        cout<<"\t NO WALL SIGNAL without bump :: Search for right wall"<<endl;
-
                                         g_AddPosition(navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
                                         current_state_slotCount = 0;
 
@@ -1065,21 +1062,6 @@ void navigate(void* _robot)
 
 int main ()
 {
-
-    /*
-    enum NAVIGATION_STATUS
-    {
-        NS_SEARCHING,
-        NS_PRE_SURVEY,
-        , //it will be used only for the transition from NS_FOLLOW_WALL to NS_PRE_SURVEY... If robot is inside FOLLOW_WALL , bumpRight()==true and isWallSignal()==true, that means robot is to close to wall... so take a left-back, then hit forward to the wall
-        NS_SURVEY,
-        ,
-        NS_FOLLOW_WALL,
-        NS_ROTATE_RIGHT_AND_SEARCH,
-        NS_SEARCH_FRONT_WALL,
-        NS_SEARCH_RIGHT_WALL
-    };
-    */
 
     g_stateNameMap[NS_SEARCHING] = "NS_SEARCHING";
     g_stateNameMap[NS_PRE_SURVEY] = "NS_PRE_SURVEY";
