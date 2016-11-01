@@ -513,7 +513,7 @@ void navigate(void* _robot)
                             ns_survey_slotCount++;
 
 
-                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<endl;
+                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD<<endl;
                             if (surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
                                 robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                             else
