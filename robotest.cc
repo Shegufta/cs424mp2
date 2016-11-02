@@ -648,10 +648,18 @@ void navigate(void* _robot)
 
                         if(robot.bumpLeft())
                         {
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                            cout << "inside NS_FOLLOW_WALL : next state NS_SEARCH_FRONT_WALL"<<endl;
+
+                            backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, SEARCH_F_WALL_BACKUP_DIST_mm );
+                            g_navigationStatus = NS_SEARCH_FRONT_WALL;
                             // TODO: handle now ... start searching for front wall
                             cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_ROTATE_RIGHT_AND_SEARCH"<<endl;
-                            //TODO: search for front wall
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            
+                            }
                         }
                         else if(robot.bumpRight())
                         {
