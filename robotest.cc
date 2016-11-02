@@ -639,7 +639,6 @@ void navigate(void* _robot)
                             surveyManagerPtr = NULL;
                         }
 
-                        cout <<"\t else of NS_ROTATE_RIGHT_AND_SEARCH"<<endl;
                         if(robot.bumpLeft())
                         {
                             // TODO: handle now ... start searching for front wall
@@ -679,9 +678,6 @@ void navigate(void* _robot)
                         }
                         else
                         {
-
-                            cout<<"rotate cloclwise"<<endl;
-
                             robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_RIGHT_WALL_RADIOUS);
                         }
                         break;
