@@ -690,7 +690,6 @@ void navigate(void* _robot)
 
                         if(0 < backupTimeSlot)
                         {
-                            cout<<"\tbackupTimeSlot = "<<backupTimeSlot<<endl;
                             backupTimeSlot--;
 
                             robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
@@ -717,7 +716,6 @@ void navigate(void* _robot)
 
                                 if(wallSigMgr.isNoWallSignal())
                                 {
-                                    cout << "\tinside NS_SEARCH_RIGHT_WALL, else_if GO TO -> NS_SURVEY"<<endl;
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
 
                                     if(NULL != surveyManagerPtr)
@@ -847,7 +845,7 @@ void navigate(void* _robot)
 
                             if(wallSigMgr.isNoWallSignal())
                             {
-                                cout<<"\tNO WALL SIGNAL :: Search for right wall"<<endl;
+                                cout<<"\n\t ### inside : NS_FOLLOW_WALL NO WALL SIGNAL :: Search for right wall"<<endl;
 
                                 rotationTimeSlot = RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
@@ -947,7 +945,7 @@ void navigate(void* _robot)
 
                             if(wallSigMgr.isNoWallSignal())
                             {
-                                cout<<"\tNO WALL SIGNAL :: Search for right wall"<<endl;
+                                cout<<"\n\t #### inside NS_PROBE_RIGHT_WALL :: NO WALL SIGNAL :: Search for right wall"<<endl;
 
                                 rotationTimeSlot = RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
