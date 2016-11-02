@@ -292,7 +292,7 @@ void navigate(void* _robot)
 
 
 
-    const int SEARCH_PROBE_WALL_RADIOUS = -185;
+    const int SEARCH_PROBE_WALL_RADIOUS = -220;
 
     const int REVERSE_ROTATION_RADIOUS = 100;
     const int REVERSE_ROTATION_TIME_SLOT = 75;
@@ -377,8 +377,6 @@ void navigate(void* _robot)
             }
             else if(!(IsCliffSensorsOK && IsWheelDropOk && IsOvercurrentOK))
             {// check sensors... drop sensor etc
-                cout <<" | IsOvercurrentOK = "<<IsOvercurrentOK<<endl;
-
 
                 if(!(IsCliffSensorsOK && IsWheelDropOk))
                 {//if atleast one of them is creating problem, shutdown immediately
