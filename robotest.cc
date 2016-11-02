@@ -1069,6 +1069,7 @@ void navigate(void* _robot)
                         {
                             rotationTimeSlot--;
 
+                            /*
                             if(robot.bumpLeft())
                             {
                                 //NOTE: this should not be happen... the maze should not be that complex... but if this happens, go to search state
@@ -1082,7 +1083,8 @@ void navigate(void* _robot)
                                 g_navigationStatus = NS_SEARCHING;
                                 break;
                             }
-                            else if(robot.bumpRight())
+                                */
+                            if(robot.bumpLeft() || robot.bumpRight())
                             {
                                 g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
                                 current_state_slotCount = 0;
@@ -1124,11 +1126,45 @@ void navigate(void* _robot)
                         }
                         else
                         {
-                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-                            current_state_slotCount = 0;
+                            if(robot.bumpLeft() || robot.bumpRight())
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
-                            g_navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
-                            break;
+                                g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                                cout<<"NS_SEARCHING -> BUMP RIGHT : next State ->";
+                                if(wallSigMgr.isNoWallSignal())
+                                {
+                                    cout << "\tGO TO -> NS_SURVEY"<<endl;
+                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+
+
+                                    if(NULL != surveyManagerPtr)
+                                    {
+                                        delete surveyManagerPtr;
+                                        surveyManagerPtr = NULL;
+                                    }
+
+                                    NS_SURVEY_ISwallAvgHighValueSeen = false;
+                                    rotationLimiter = 0;
+                                    g_navigationStatus = NS_SURVEY;
+
+                                }
+                                else
+                                {
+                                    cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
+                                    backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                                    g_navigationStatus = NS_PRE_SURVEY;
+                                }
+
+
+
+                            }
+                            else
+                            {
+                                robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                            }
+
                         }
 
                         break;
