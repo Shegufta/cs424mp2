@@ -280,7 +280,7 @@ void navigate(void* _robot)
     double OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
 
 
-    const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 15;
+    const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 20;
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 40;
@@ -979,7 +979,8 @@ void navigate(void* _robot)
                                 isProbeRightWall_SecondTest = false;
 
                                 rotationTimeSlot = RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
-                                backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
+                                //backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
+                                backupTimeSlot = 0; // we have already backed up
                                 forwardTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, SEARCH_R_WALL_ForwardDist_mm );
                                 g_navigationStatus = NS_SEARCH_RIGHT_WALL;
                             }
