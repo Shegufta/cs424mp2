@@ -299,7 +299,7 @@ void navigate(void* _robot)
 
     const int SEARCH_F_WALL_BACKUP_DIST_mm = 80;
     const int SEARCH_F_WALL_RADIOUS = 50;
-    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 100;
+    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 80;
 
     const int FOLLOW_WALL_SPEED = 100;
 
@@ -1162,6 +1162,7 @@ void navigate(void* _robot)
                                     NS_SURVEY_ISwallAvgHighValueSeen = false;
                                     rotationLimiter = 0;
                                     g_navigationStatus = NS_SURVEY;
+                                    cout << "inside NS_SEARCH_FRONT_WALL : next state NS_SURVEY"<<endl;
 
                                 }
                                 else
@@ -1169,6 +1170,7 @@ void navigate(void* _robot)
                                     cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
                                     g_navigationStatus = NS_PRE_SURVEY;
+                                    cout << "inside NS_SEARCH_FRONT_WALL : next state NS_PRE_SURVEY"<<endl;
                                 }
 
 
