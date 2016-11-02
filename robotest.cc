@@ -658,8 +658,8 @@ void navigate(void* _robot)
                             g_navigationStatus = NS_SEARCH_FRONT_WALL;
                             // TODO: handle now ... start searching for front wall
                             cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_ROTATE_RIGHT_AND_SEARCH"<<endl;
+
                             
-                            }
                         }
                         else if(robot.bumpRight())
                         {
