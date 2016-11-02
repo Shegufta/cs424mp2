@@ -313,6 +313,8 @@ void navigate(void* _robot)
     const int SKIP_DUE_TO_OVERCURRENT_SLOT = 6;
     const int MAX_OVERCURRENT_SAFE_SLOT = 3;
     int overcurrentSlotCounter = 0;
+
+    const int PROBE_RIGHTWALL_ANTCLOCK_SMALL_ROTATION = 5;
     ////////////////////////////
 
 
@@ -331,6 +333,8 @@ void navigate(void* _robot)
     int skipForOvercurrent = 0;
 
     int sleepTimeMS = 15;
+
+    int probRightWall_antiClockWise_smallRotationSlot;
 
     bool isProbeRightWall_SecondTest = false;
 
@@ -931,9 +935,11 @@ void navigate(void* _robot)
 
 
 
+
                     case NS_PROBE_RIGHT_WALL:
                     {
                         current_state_slotCount++;
+
 
 
                         if(isProbeRightWall_SecondTest)
@@ -951,6 +957,18 @@ void navigate(void* _robot)
                                 }
 
                                 break;
+                            }
+                            else if(0 < probRightWall_antiClockWise_smallRotationSlot)
+                            {
+                                --probRightWall_antiClockWise_smallRotationSlot;
+                                robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                if(probRightWall_antiClockWise_smallRotationSlot == 0)
+                                    robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+                            }
+                            else if(0 < forwardTimeSlot)
+                            {
+                                forwardTimeSlot--;
+                                robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
                             }
                             else if(rotationLimiter < NS_SURVEY_SLOT_MAX/5)
                             {
@@ -1013,6 +1031,8 @@ void navigate(void* _robot)
                                     isProbeRightWall_SecondTest = true;
                                     backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
 
+                                    forwardTimeSlot = backupTimeSlot;
+                                    probRightWall_antiClockWise_smallRotationSlot = PROBE_RIGHTWALL_ANTCLOCK_SMALL_ROTATION;
                                 }
                                 else
                                 {// if there is wall signal, do the pre-survay thing
