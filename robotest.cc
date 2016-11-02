@@ -782,6 +782,7 @@ void navigate(void* _robot)
                     {//rotationTimeSlot and backupTimeSlot
                         current_state_slotCount++;
 
+                        /*
                         if(0 < backupTimeSlot)
                         {
                             backupTimeSlot--;
@@ -797,16 +798,19 @@ void navigate(void* _robot)
                             }
 
                             break;
-                        }
+                        }*/
                             
-                        else if(0 < rotationTimeSlot )
+                        if(0 < rotationTimeSlot )
                         {
                             rotationTimeSlot--;
 
                             robot.sendDriveCommand(-SEARCHING_SPEED, REVERSE_ROTATION_RADIOUS);
 
                             if(0 == rotationTimeSlot)
+                            {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                return;
+                            }
                         }
                         else
                         {
@@ -890,7 +894,7 @@ void navigate(void* _robot)
                                 cout << "\t WALL signal found....  GO TO -> NS_PRE_SURVEY"<<endl;
 
                                 backupTimeSlot = calculateTimeSlot(sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-                                rotationTimeSlot = 0;
+                                rotationTimeSlot = REVERSE_ROTATION_TIME_SLOT;
                                 g_navigationStatus = NS_MOVE_AWAY_FROM_WALL;
 
                             }
