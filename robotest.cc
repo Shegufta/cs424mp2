@@ -292,7 +292,7 @@ void navigate(void* _robot)
 
 
 
-    const int SEARCH_PROBE_WALL_RADIOUS = -250;
+    const int SEARCH_PROBE_WALL_RADIOUS = -230;
 
     const int REVERSE_ROTATION_RADIOUS = 100;
     const int REVERSE_ROTATION_TIME_SLOT = 75;
