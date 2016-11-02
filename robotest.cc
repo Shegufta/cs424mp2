@@ -284,7 +284,7 @@ void navigate(void* _robot)
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 40;
-    const int SEARCH_R_WALL_ForwardDist_mm = 120;
+    const int SEARCH_R_WALL_ForwardDist_mm = 150;
     const int NS_SURVEY_SLOT_MAX = 600; // if slot time is 15ms and speed is 100mmps, then 580 will rotate the robot 360 degree | we have set it to 600... if the problem is not solved in 600 slot, then there is something wrong... hence retry
     const int CLOCK_WISE_RADIOUS = -10;
     const int ANTICLOCK_WISE_RADIOUS = 10;
