@@ -972,7 +972,7 @@ void navigate(void* _robot)
                         }
                         else
                         {
-                            if ( ALIGNMENT_THRESHOLD < surveyManagerPtr->getSignalStrength(wallSignal) )
+                            if ((!wallSigMgr.isNoWallSignal())&&( ALIGNMENT_THRESHOLD < surveyManagerPtr->getSignalStrength(wallSignal) ))
                             {
                                 g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
 
