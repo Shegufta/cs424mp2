@@ -314,7 +314,7 @@ void navigate(void* _robot)
     const int MAX_OVERCURRENT_SAFE_SLOT = 3;
     int overcurrentSlotCounter = 0;
 
-    const int PROBE_RIGHTWALL_ANTCLOCK_SMALL_ROTATION = 5;
+    const int PROBE_RIGHTWALL_ANTCLOCK_SMALL_ROTATION = 10;
     ////////////////////////////
 
 
