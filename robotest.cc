@@ -373,7 +373,7 @@ void navigate(void* _robot)
     int n_consecutiveDecreaseInPostSurveyAlign = 0;
     double n_prevSignalStrengthInPostSurveyAlign = 0;
     int n_finalAdjustRotationCountInPostSurveyAlign = 0;
-    const int POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD = 5;
+    const int POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD = 2;
 
     int probRightWall_antiClockWise_smallRotationSlot;
 
@@ -649,7 +649,7 @@ void navigate(void* _robot)
 
                             robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
-                            cout <<"\t\t\t ADJUST: surveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
+                            cout <<"\t\t\t ADJUST: surveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign = "<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
 
 
                             if(0 == n_finalAdjustRotationCountInPostSurveyAlign)
