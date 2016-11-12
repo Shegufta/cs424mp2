@@ -243,7 +243,7 @@ void navigate(void* _robot)
 
 
 
-#if false
+#if true
 
     const int RotationSpeed = 300; /// @ 300mmps, and sleep interval 15ms, it takes approx 184 slot for a 360 degree movement
     int temp_sleepTimeMS = 15;
@@ -258,6 +258,8 @@ void navigate(void* _robot)
     //cout<<"end sleep"<<endl;
     //robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
 
+    const int _FOLLOW_WALL_SPEED = 200;
+    const int _ANTICLOCK_WISE_RADIOUS = 10;
     int counter = 0;
     int findMax = -1;
     bool readWallOnly = false;
@@ -266,6 +268,7 @@ void navigate(void* _robot)
         wallSignal_temp = robot.wallSignal();
 
         cout <<" right sensor = "<<robot.bumpRight() << " | left sensor "<<robot.bumpLeft()<<endl << endl;
+        robot.sendDriveCommand(_FOLLOW_WALL_SPEED, _ANTICLOCK_WISE_RADIOUS);
 
 
 
@@ -290,8 +293,11 @@ void navigate(void* _robot)
         */
 
         counter++;
-        //cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
+        cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
         this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
+
+        if(counter == 4)
+            break;
 
 
 
