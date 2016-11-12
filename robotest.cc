@@ -950,6 +950,7 @@ void navigate(void* _robot)
                                 g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
                                 backupTimeSlot = 0;//calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );// we have already backed up
                                 g_navigationStatus = NS_PRE_SURVEY;
+                                cout <<"\t\t\t moving to NS_PRE_SURVEY"<<endl;
                             }
                             else
                             {
