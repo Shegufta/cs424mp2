@@ -259,7 +259,7 @@ void navigate(void* _robot)
     //robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
 
     const int _FOLLOW_WALL_SPEED = 200;
-    const int _ANTICLOCK_WISE_RADIOUS = 10;
+    const int _ANTICLOCK_WISE_RADIOUS = 100;
     int counter = 0;
     int findMax = -1;
     bool readWallOnly = false;
@@ -296,7 +296,7 @@ void navigate(void* _robot)
         cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
         this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
 
-        if(counter == 400)
+        if(counter == 100)
             break;
 
 
