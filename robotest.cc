@@ -649,7 +649,7 @@ void navigate(void* _robot)
 
                             robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
-                            cout <<"\t\t\t ADJUST: surveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign = "<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
+                            cout <<"\t\t\t ADJUST: surveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal) << "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign = "<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
 
 
                             if(0 == n_finalAdjustRotationCountInPostSurveyAlign)
@@ -682,7 +682,7 @@ void navigate(void* _robot)
 
                             n_prevSignalStrengthInPostSurveyAlign = signalStrength;
 
-                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
+                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<< "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
 
                             if( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD == n_consecutiveDecreaseInPostSurveyAlign) {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
