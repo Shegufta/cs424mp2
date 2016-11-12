@@ -841,7 +841,7 @@ void navigate(void* _robot)
                         {
                             g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);
 
-                            if(wallSigMgr.isNoWallSignal())
+                            if(wallSigMgr.isNoWallSignal()) 
                             {
                                 if(NULL != surveyManagerPtr)
                                 {
