@@ -937,6 +937,7 @@ void navigate(void* _robot)
                                 else
                                 {
                                     consecutiveOperation=0;
+
                                     robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
                                     if(wallSigMgr.isNoWallSignal())
@@ -959,7 +960,7 @@ void navigate(void* _robot)
                                         else
                                         {
                                             if (wallSigMgr.isIncreasing()) {
-                                                alignLeft = 1;
+                                                alignLeft = 4;
                                                 cout <<"\t alighLeft 1"<<endl;
                                             }
                                             else {
