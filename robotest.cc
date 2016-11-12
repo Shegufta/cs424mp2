@@ -633,7 +633,7 @@ void navigate(void* _robot)
                         {
                             rotationLimiter++;
 
-                            //cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD<<endl;
+                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD<<endl;
                             if (surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
                                 robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                             else
@@ -647,11 +647,13 @@ void navigate(void* _robot)
                                 backupTimeSlot = 0;
                                 alignLeft = 0;
                                 alignRight = 0;
+                                
 
 
 
 
                                 return;
+
 
 
 
