@@ -264,7 +264,8 @@ void navigate(void* _robot)
     while (!robot.playButton ())
     {
         wallSignal_temp = robot.wallSignal();
-/*
+
+        
         if(findMax == wallSignal_temp &&  (100 < findMax) )
         {
 
@@ -280,7 +281,7 @@ void navigate(void* _robot)
                 findMax = wallSignal_temp;
             robot.sendDriveCommand(RotationSpeed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
         }
-*/
+
         robot.sendDriveCommand(RotationSpeed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
         counter++;
         cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
