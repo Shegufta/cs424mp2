@@ -243,7 +243,7 @@ void navigate(void* _robot)
 
 
 
-#if true
+#if false
 
     const int RotationSpeed = 300; /// @ 300mmps, and sleep interval 15ms, it takes approx 184 slot for a 360 degree movement
     int temp_sleepTimeMS = 15;
@@ -327,8 +327,8 @@ void navigate(void* _robot)
     const int MID_BACKUP_DIST_mm = 40;
     const int SEARCH_R_WALL_ForwardDist_mm = 120;
     const int NS_SURVEY_SLOT_MAX = 70; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation/// We will scan max 135 degree, henc our max slot will be approx 70....   Note, ((360/8)*3) = 135
-    const int CLOCK_WISE_RADIOUS = -10;
-    const int ANTICLOCK_WISE_RADIOUS = 10;
+    const int n_FOLLOW_WALL_CLOCK_WISE_RADIOUS = -400;
+    const int n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS = 400;
     const int SEARCH_RIGHT_WALL_RADIOUS = -185;  // radious 185 is ok when the searching speed is 100mmps
 
 
@@ -924,13 +924,13 @@ void navigate(void* _robot)
 
                             if(0 < alignLeft)
                             {
-                                robot.sendDriveCommand(FOLLOW_WALL_SPEED, ANTICLOCK_WISE_RADIOUS);
+                                robot.sendDriveCommand(FOLLOW_WALL_SPEED, n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS);
                                 cout<<"\t\tLEFT"<<endl;
                                 alignLeft--;
                             }
                             else if(0 < alignRight)
                             {
-                                robot.sendDriveCommand(FOLLOW_WALL_SPEED, CLOCK_WISE_RADIOUS);
+                                robot.sendDriveCommand(FOLLOW_WALL_SPEED, n_FOLLOW_WALL_CLOCK_WISE_RADIOUS);
                                 cout<<"\t\tRIGHT"<<endl;
                                 alignRight--;
                             }
@@ -969,11 +969,11 @@ void navigate(void* _robot)
                                         else
                                         {
                                             if (wallSigMgr.isIncreasing()) {
-                                                alignLeft = 4;
+                                                alignLeft = 10;
                                                 cout <<"\t alighLeft 1"<<endl;
                                             }
                                             else {
-                                                alignRight = 1;
+                                                alignRight = 10;
                                                 cout <<"\t alighRight 1"<<endl;
                                             }
                                         }
