@@ -522,7 +522,7 @@ void navigate(void* _robot)
                         }
                         else
                         {
-                            robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                            robot.sendDriveCommand (n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_STRAIGHT);
                         }
 
 
@@ -647,6 +647,14 @@ void navigate(void* _robot)
                                 backupTimeSlot = 0;
                                 alignLeft = 0;
                                 alignRight = 0;
+
+
+
+
+                                return;
+
+
+
 
                             }
                             break;
