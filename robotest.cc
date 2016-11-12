@@ -591,8 +591,6 @@ void navigate(void* _robot)
                         }
                         else if (rotationLimiter < NS_SURVEY_SLOT_MAX)
                         {
-                            cout <<"\t #NS_SURVEY :: surveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"   | wallSignal = "<<wallSignal<<endl;
-
 
                             rotationLimiter++; // we will not count the backup time here !
 
@@ -677,7 +675,7 @@ void navigate(void* _robot)
 
                             double signalStrength = surveyManagerPtr->getSignalStrength(wallSignal);
 
-                            if(signalStrength <= n_prevSignalStrengthInPostSurveyAlign) // NOTE:: here i am counting the equal signal strength also...
+                            if((0.5 < signalStrength)&&(signalStrength <= n_prevSignalStrengthInPostSurveyAlign) )// NOTE:: here i am counting the equal signal strength also...
                                 ++n_consecutiveDecreaseInPostSurveyAlign;
                             else
                                 n_consecutiveDecreaseInPostSurveyAlign = 0;
