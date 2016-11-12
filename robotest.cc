@@ -983,11 +983,11 @@ void navigate(void* _robot)
                                         else
                                         {
                                             if (wallSigMgr.isIncreasing()) {
-                                                alignLeft = 10;
+                                                alignLeft = 4;
                                                 cout <<"\t alighLeft 1"<<endl;
                                             }
                                             else {
-                                                alignRight = 10;
+                                                alignRight = 4;
                                                 cout <<"\t alighRight 1"<<endl;
                                             }
                                         }
