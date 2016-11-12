@@ -243,7 +243,7 @@ void navigate(void* _robot)
 
 
 
-#if true
+#if false
 
     const int RotationSpeed = 300; /// @ 300mmps, and sleep interval 15ms, it takes approx 184 slot for a 360 degree movement
     int temp_sleepTimeMS = 15;
@@ -294,7 +294,7 @@ void navigate(void* _robot)
         counter++;
         cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
         this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
-        
+
 
 
 
@@ -308,8 +308,8 @@ void navigate(void* _robot)
     return;
 #endif
 
-    const double ALIGNMENT_THRESHOLD = 0.7;
-    const double LOWER_BOUND_OF_VALID_THRESHOLD = 0.3;
+    const double ALIGNMENT_THRESHOLD = 0.9;
+    const double LOWER_BOUND_OF_VALID_THRESHOLD = 0.6;
 
     const double INIT_OUTOF_CONTROL_THRESHOLD = 0.4;
     double OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
@@ -877,7 +877,7 @@ void navigate(void* _robot)
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
 
-                            return;
+                            return; // TODO: test purpose... remove
 
 
 
@@ -894,7 +894,7 @@ void navigate(void* _robot)
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
 
-                            return;
+                            return;  // TODO: test purpose... remove
 
 
 
@@ -928,8 +928,30 @@ void navigate(void* _robot)
                         else
 
                         {
+                            if(wallSigMgr.isNoWallSignal())
+                            {
+                                g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                                isProbeRightWall_SecondTest = false;
+                                goBackPreviousPosition = 0;
+                                g_navigationStatus = NS_PROBE_RIGHT_WALL;
+                                cout << "inside NS_FOLLOW_WALL : next state NS_PROBE_RIGHT_WALL"<<endl;
+                            }
+                            else if(surveyManagerPtr->getSignalStrength(wallSignal) < LOWER_BOUND_OF_VALID_THRESHOLD)
+                            {
+                                g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                backupTimeSlot = 0;//calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );// we have already backed up
+                                g_navigationStatus = NS_PRE_SURVEY;
+                            }
+                            else
+                            {
+                                robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                            }
+
+                            /*
+
                             cout << "current_state_slotCount = "<<current_state_slotCount<<"  wallsig = "<<wallSignal << "  sigstrength = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<endl;
-                            if(100 == current_state_slotCount) {
+                            if(100 == current_state_slotCount) { // TODO: test code... remove
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 return;
                             }
@@ -996,6 +1018,7 @@ void navigate(void* _robot)
                                 }
 
                             }
+                            */
                         }
 
 
