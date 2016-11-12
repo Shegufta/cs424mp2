@@ -666,6 +666,9 @@ void navigate(void* _robot)
                                 alignLeft = 0;
                                 alignRight = 0;
                                 cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
+
+
+                                return;
                             }
                         }
                         else if (rotationLimiter < NS_SURVEY_SLOT_MAX)
@@ -687,7 +690,7 @@ void navigate(void* _robot)
                             if( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD == n_consecutiveDecreaseInPostSurveyAlign) {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
-                                n_finalAdjustRotationCountInPostSurveyAlign = POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD;
+                                n_finalAdjustRotationCountInPostSurveyAlign = POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD*10;
 
                             } else
                             {
