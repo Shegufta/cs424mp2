@@ -642,48 +642,16 @@ void navigate(void* _robot)
 
                         current_state_slotCount++;
 
+
+
                         double signalStrength = surveyManagerPtr->getSignalStrength(wallSignal);
 
-                        if(n_IsfinalAdjustRotationInPostSurveyAlign)
-                        {
-                            robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-
-                            if(signalStrength <= n_prevSignalStrengthInPostSurveyAlign )// NOTE:: here i am counting the equal signal strength also...
-                                ++n_consecutiveDecreaseInPostSurveyAlign;
-                            else
-                                n_consecutiveDecreaseInPostSurveyAlign = 0;
-
-                            n_prevSignalStrengthInPostSurveyAlign = signalStrength;
 
 
 
-                            cout <<"\t\t\t ADJUST: surveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal) << "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign = "<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
-
-
-                            if(2 == n_consecutiveDecreaseInPostSurveyAlign)
-                            {
-                                n_IsfinalAdjustRotationInPostSurveyAlign = false;
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-
-                                g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-
-                                rotationLimiter=0;
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                g_navigationStatus = NS_FOLLOW_WALL;
-                                consecutiveOperation = 0;
-                                backupTimeSlot = 0;
-                                alignLeft = 0;
-                                alignRight = 0;
-                                cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
-
-                            }
-                        }
-                        else if (rotationLimiter < NS_SURVEY_SLOT_MAX)
+                        if (rotationLimiter < NS_SURVEY_SLOT_MAX)
                         {
                             rotationLimiter++;
-
-
-
 
                             if((0.5 < signalStrength)&&(signalStrength <= n_prevSignalStrengthInPostSurveyAlign) )// NOTE:: here i am counting the equal signal strength also...
                                 ++n_consecutiveDecreaseInPostSurveyAlign;
@@ -694,27 +662,16 @@ void navigate(void* _robot)
 
                             cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<< "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
 
-                            if( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD == n_consecutiveDecreaseInPostSurveyAlign)
-                            {
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                n_consecutiveDecreaseInPostSurveyAlign = 0;
-
-                                n_IsfinalAdjustRotationInPostSurveyAlign = true;
-
-                            } else
-                            {
-                                robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
-                            }
-
-                            break;
+                            ( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD == n_consecutiveDecreaseInPostSurveyAlign)
 
 
 
 
 
-/*
-                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD<<endl;
-                            if (signalStrength < ALIGNMENT_THRESHOLD)
+
+                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<signalStrength<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD<<endl;
+
+                            if ( (signalStrength < ALIGNMENT_THRESHOLD) && ( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD != n_consecutiveDecreaseInPostSurveyAlign) )
                                 robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                             else
                             {
@@ -730,7 +687,7 @@ void navigate(void* _robot)
                                 cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
                             }
                             break;
-                            */
+
 
                         }
                         else
