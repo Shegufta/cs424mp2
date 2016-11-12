@@ -676,8 +676,6 @@ void navigate(void* _robot)
                                 alignRight = 0;
                                 cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
 
-
-                                return;
                             }
                         }
                         else if (rotationLimiter < NS_SURVEY_SLOT_MAX)
