@@ -245,7 +245,7 @@ void navigate(void* _robot)
 
 #if true
 
-    const int temp_SEARCHING_SPEED = 200;
+    const int temp_SEARCHING_SPEED = 300;
     int temp_sleepTimeMS = 15;
     short wallSignal_temp ;
 
@@ -260,6 +260,7 @@ void navigate(void* _robot)
 
     int counter = 0;
     int findMax = -1;
+    bool readWallOnly = false;
     while (!robot.playButton ())
     {
         wallSignal_temp = robot.wallSignal();
@@ -269,17 +270,20 @@ void navigate(void* _robot)
 
             robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
             cout <<"#### max wall signal "<<wallSignal_temp<<endl;
+            readWallOnly = true;
             return;
         }
 
-        if(findMax < wallSignal_temp)
-            findMax = wallSignal_temp;
+        if(!readWallOnly)
+        {
+            if(findMax < wallSignal_temp)
+                findMax = wallSignal_temp;
+            robot.sendDriveCommand(temp_SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+        }
 
         counter++;
-        robot.sendDriveCommand(temp_SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-        this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
-
         cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
+        this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
 
     }
 
