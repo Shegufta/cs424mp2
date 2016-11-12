@@ -264,7 +264,7 @@ void navigate(void* _robot)
     {
         wallSignal_temp = robot.wallSignal();
 
-        if(findMax == wallSignal_temp &&  (4 < findMax) )
+        if(findMax == wallSignal_temp &&  (100 < findMax) )
         {
 
             robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
