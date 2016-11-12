@@ -287,7 +287,7 @@ void navigate(void* _robot)
         cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
         this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
 
-        if(counter == 200) {
+        if(counter == 170) {
             robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
             return;
         }
