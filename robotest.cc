@@ -346,7 +346,7 @@ void navigate(void* _robot)
     const int WALL_SENSOR_MIN = 4;
 
 
-    const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 10;
+    const int FOLLOW_WALL_CHECK_SIGNAL_INTERVAL = 4;
 
     //////////////////////////
     const int SKIP_DUE_TO_OVERCURRENT_SLOT = 6;
