@@ -648,6 +648,8 @@ void navigate(void* _robot)
 
                             robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
+                            cout <<"\t\t\t ADJUST: surveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
+
 
                             if(0 == n_finalAdjustRotationCountInPostSurveyAlign)
                             {
@@ -678,6 +680,8 @@ void navigate(void* _robot)
                                 n_consecutiveDecreaseInPostSurveyAlign = 0;
 
                             n_prevSignalStrengthInPostSurveyAlign = signalStrength;
+
+                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
 
                             if( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD == n_consecutiveDecreaseInPostSurveyAlign) {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
@@ -995,7 +999,7 @@ void navigate(void* _robot)
 
                         {
                             cout <<"wallSignal = " << wallSignal <<"     |   surveyManagerPtr->getSignalStrength(wallSignal)  = " << surveyManagerPtr->getSignalStrength(wallSignal) <<endl;
-                            
+
                             if(wallSigMgr.isNoWallSignal())
                             {
                                 g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
