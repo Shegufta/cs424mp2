@@ -647,16 +647,6 @@ void navigate(void* _robot)
                                 backupTimeSlot = 0;
                                 alignLeft = 0;
                                 alignRight = 0;
-                                
-
-
-
-
-                                return;
-
-
-
-
 
                             }
                             break;
@@ -921,6 +911,9 @@ void navigate(void* _robot)
                         else
 
                         {
+                            cout << "current_state_slotCount = "<<current_state_slotCount << "  sigstrength = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<endl;
+                            if(20 == current_state_slotCount)
+                                return;
 
                             if(0 < alignLeft)
                             {
@@ -958,14 +951,19 @@ void navigate(void* _robot)
                                         if( (LOWER_BOUND_OF_VALID_THRESHOLD <=surveyManagerPtr->getSignalStrength(wallSignal) ) && (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
                                         //if( (surveyManagerPtr->getSignalStrength(wallSignal) < OUTOF_CONTROL_THRESHOLD))
                                         {
+                                            cout <<"\t alighRight 4"<<endl;
                                             alignRight = 4;
                                         }
                                         else
                                         {
-                                            if (wallSigMgr.isIncreasing())
+                                            if (wallSigMgr.isIncreasing()) {
                                                 alignLeft = 1;
-                                            else
+                                                cout <<"\t alighLeft 1"<<endl;
+                                            }
+                                            else {
                                                 alignRight = 1;
+                                                cout <<"\t alighRight 1"<<endl;
+                                            }
                                         }
 
                                     }
