@@ -245,7 +245,7 @@ void navigate(void* _robot)
 
 #if true
 
-    const int temp_SEARCHING_SPEED = 100;
+    const int temp_SEARCHING_SPEED = 200;
     int temp_sleepTimeMS = 15;
     short wallSignal_temp ;
 
@@ -276,11 +276,10 @@ void navigate(void* _robot)
             findMax = wallSignal_temp;
 
         counter++;
-        cout << "counter = "<<counter<<endl;
         robot.sendDriveCommand(temp_SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
         this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
 
-        cout << "Wall signal " << wallSignal_temp << endl;
+        cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
 
     }
 
