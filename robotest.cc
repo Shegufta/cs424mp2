@@ -660,16 +660,9 @@ void navigate(void* _robot)
 
                             n_prevSignalStrengthInPostSurveyAlign = signalStrength;
 
-                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<< "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
+                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<signalStrength<< "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
 
-                            ( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD == n_consecutiveDecreaseInPostSurveyAlign)
-
-
-
-
-
-
-                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<signalStrength<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD<<endl;
+                            
 
                             if ( (signalStrength < ALIGNMENT_THRESHOLD) && ( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD != n_consecutiveDecreaseInPostSurveyAlign) )
                                 robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
