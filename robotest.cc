@@ -920,11 +920,13 @@ void navigate(void* _robot)
                             if(0 < alignLeft)
                             {
                                 robot.sendDriveCommand(FOLLOW_WALL_SPEED, ANTICLOCK_WISE_RADIOUS);
+                                cout<<"\t\tLEFT"<<endl;
                                 alignLeft--;
                             }
                             else if(0 < alignRight)
                             {
                                 robot.sendDriveCommand(FOLLOW_WALL_SPEED, CLOCK_WISE_RADIOUS);
+                                cout<<"\t\tRIGHT"<<endl;
                                 alignRight--;
                             }
                             else
@@ -932,6 +934,7 @@ void navigate(void* _robot)
                                 if(consecutiveOperation < FOLLOW_WALL_CHECK_SIGNAL_INTERVAL)
                                 {
                                     robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                    cout<<"\t\tSTRAIGHT"<<endl;
                                     consecutiveOperation++;
                                 }
                                 else
@@ -939,6 +942,7 @@ void navigate(void* _robot)
                                     consecutiveOperation=0;
 
                                     robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                    cout<<"\t\tSTOP"<<endl;
 
                                     if(wallSigMgr.isNoWallSignal())
                                     {
