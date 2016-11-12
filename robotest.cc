@@ -429,7 +429,7 @@ void navigate(void* _robot)
 
                 if(!(IsCliffSensorsOK && IsWheelDropOk))
                 {//if atleast one of them is creating problem, shutdown immediately
-                    cout <<"IsCliffSensorsOK = "<<IsCliffSensorsOK <<" | IsWheelDropOk = "<<endl;
+                    //cout <<"IsCliffSensorsOK = "<<IsCliffSensorsOK <<" | IsWheelDropOk = "<<endl;
                     robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                     // TODO: turn on alarm
                 }
@@ -441,7 +441,7 @@ void navigate(void* _robot)
 
                     if(MAX_OVERCURRENT_SAFE_SLOT < overcurrentSlotCounter)
                     {
-                        cout <<" | IsOvercurrentOK = "<<IsOvercurrentOK<< " | overcurrentSlotCounter= "<<overcurrentSlotCounter<<endl;
+                        //cout <<" | IsOvercurrentOK = "<<IsOvercurrentOK<< " | overcurrentSlotCounter= "<<overcurrentSlotCounter<<endl;
                         // TODO: turn on alarm
                         robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                         skipForOvercurrent = SKIP_DUE_TO_OVERCURRENT_SLOT;
