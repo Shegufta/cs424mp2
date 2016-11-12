@@ -317,7 +317,7 @@ void navigate(void* _robot)
 
     const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 20;
 
-    const int n_SEARCHING_ROTATION_SPEED = 250; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
+    const int n_SEARCHING_ROTATION_SPEED = 300; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
     const int n_SEARCHING_STRAIGHT_SPEED = 200;
     const int n_SEARCH_FRONT_WALL_SLOW_BACKUP = 100; // if found front wall, then backup slowly
 
@@ -372,7 +372,7 @@ void navigate(void* _robot)
     int skipForOvercurrent = 0;
     int n_consecutiveDecreaseInPostSurveyAlign = 0;
     double n_prevSignalStrengthInPostSurveyAlign = 0;
-    int n_finalAdjustRotationCountInPostSurveyAlign = 0;
+    bool n_IsfinalAdjustRotationInPostSurveyAlign = 0;
     const int POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD = 2;
 
     int probRightWall_antiClockWise_smallRotationSlot;
@@ -632,7 +632,7 @@ void navigate(void* _robot)
                             rotationLimiter = 0;
                             n_consecutiveDecreaseInPostSurveyAlign = 0;
                             n_prevSignalStrengthInPostSurveyAlign = -1.0;
-                            n_finalAdjustRotationCountInPostSurveyAlign = 0;
+                            n_IsfinalAdjustRotationInPostSurveyAlign = false;
                         }
 
                         break;
@@ -642,18 +642,27 @@ void navigate(void* _robot)
 
                         current_state_slotCount++;
 
+                        double signalStrength = surveyManagerPtr->getSignalStrength(wallSignal);
 
-                        if(0 < n_finalAdjustRotationCountInPostSurveyAlign)
+                        if(n_IsfinalAdjustRotationInPostSurveyAlign)
                         {
-                            --n_finalAdjustRotationCountInPostSurveyAlign;
-
                             robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+                            if(signalStrength <= n_prevSignalStrengthInPostSurveyAlign )// NOTE:: here i am counting the equal signal strength also...
+                                ++n_consecutiveDecreaseInPostSurveyAlign;
+                            else
+                                n_consecutiveDecreaseInPostSurveyAlign = 0;
+
+                            n_prevSignalStrengthInPostSurveyAlign = signalStrength;
+
+
 
                             cout <<"\t\t\t ADJUST: surveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal) << "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign = "<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
 
 
-                            if(0 == n_finalAdjustRotationCountInPostSurveyAlign)
+                            if(2 == n_consecutiveDecreaseInPostSurveyAlign)
                             {
+                                n_IsfinalAdjustRotationInPostSurveyAlign = false;
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
                                 g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
@@ -676,7 +685,7 @@ void navigate(void* _robot)
                             rotationLimiter++;
 
 
-                            double signalStrength = surveyManagerPtr->getSignalStrength(wallSignal);
+
 
                             if((0.5 < signalStrength)&&(signalStrength <= n_prevSignalStrengthInPostSurveyAlign) )// NOTE:: here i am counting the equal signal strength also...
                                 ++n_consecutiveDecreaseInPostSurveyAlign;
@@ -687,10 +696,12 @@ void navigate(void* _robot)
 
                             cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<< "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
 
-                            if( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD == n_consecutiveDecreaseInPostSurveyAlign) {
+                            if( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD == n_consecutiveDecreaseInPostSurveyAlign)
+                            {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                n_consecutiveDecreaseInPostSurveyAlign = 0;
 
-                                n_finalAdjustRotationCountInPostSurveyAlign = POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD*10;
+                                n_IsfinalAdjustRotationInPostSurveyAlign = true;
 
                             } else
                             {
