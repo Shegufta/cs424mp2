@@ -662,7 +662,7 @@ void navigate(void* _robot)
 
                             cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<signalStrength<< "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
 
-                            
+
 
                             if ( (signalStrength < ALIGNMENT_THRESHOLD) && ( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD != n_consecutiveDecreaseInPostSurveyAlign) )
                                 robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
@@ -975,6 +975,7 @@ void navigate(void* _robot)
 
                         {
                             double signalStrength = surveyManagerPtr->getSignalStrength(wallSignal);
+
                             cout <<"wallSignal = " << wallSignal <<"     |   surveyManagerPtr->getSignalStrength(wallSignal)  = " << signalStrength <<endl;
 
                             if(wallSigMgr.isNoWallSignal())
@@ -997,8 +998,65 @@ void navigate(void* _robot)
                             }*/
                             else
                             {
-                                cout << "\t\tSTRAIGHT"<<endl;
-                                robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                if( 0 != alignLeft )
+                                {
+                                    robot.sendDriveCommand(FOLLOW_WALL_SPEED, n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS);
+                                    cout<<"\t\tLEFT"<<endl;
+                                    if(!wallSigMgr.isIncreasing())
+                                        alignLeft = 0;
+
+                                }
+                                else if((0 != alignRight))
+                                {
+                                    robot.sendDriveCommand(FOLLOW_WALL_SPEED, n_FOLLOW_WALL_CLOCK_WISE_RADIOUS);
+                                    cout<<"\t\tRIGHT"<<endl;
+                                    if(wallSigMgr.isIncreasing())
+                                        alignRight = 0;
+                                }
+                                else
+                                {
+                                    if(consecutiveOperation < FOLLOW_WALL_CHECK_SIGNAL_INTERVAL)
+                                    {
+                                        robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                        cout<<"\t\tSTRAIGHT"<<endl;
+                                        consecutiveOperation++;
+                                    }
+                                    else
+                                    {
+                                        consecutiveOperation=0;
+
+                                        robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                        cout<<"\t\tSTOP"<<endl;
+
+                                        if( (LOWER_BOUND_OF_VALID_THRESHOLD <=signalStrength ) && (signalStrength < OUTOF_CONTROL_THRESHOLD))
+                                        {
+                                            cout <<"\t alighRight 4"<<endl;
+                                            alignRight = 4;
+                                        }
+                                        else
+                                        {
+                                            if (wallSigMgr.isIncreasing()) {
+                                                alignLeft = 4;
+                                                cout <<"\t alighLeft 1"<<endl;
+                                            }
+                                            else {
+                                                alignRight = 4;
+                                                cout <<"\t alighRight 1"<<endl;
+                                            }
+                                        }
+
+
+                                    }
+
+                                }
+
+
+
+
+
+
+                                //cout << "\t\tSTRAIGHT"<<endl;
+                                //robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
                             }
 
                             /*
@@ -1071,7 +1129,8 @@ void navigate(void* _robot)
                                 }
 
                             }
-                            */
+                             */
+
                         }
 
 
