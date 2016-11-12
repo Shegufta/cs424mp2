@@ -964,8 +964,8 @@ void navigate(void* _robot)
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
 
-                            cout<<"good bye 2"<<endl;
-                            return;  // TODO: test purpose... remove
+                            ///cout<<"good bye 2"<<endl;
+                            //return;  // TODO: test purpose... remove
 
 
 
@@ -989,9 +989,22 @@ void navigate(void* _robot)
                             {// if there is wall signal, do the pre-survay thing
                                 //TODO: adjust the threshold
 
+
+
+                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
+                                cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
+                                g_navigationStatus = NS_PRE_SURVEY;
+
+
+
+
+
+
+                                /*
                                 rotationTimeSlot = REVERSE_ROTATION_TIME_SLOT;
                                 g_navigationStatus = NS_MOVE_AWAY_FROM_WALL;
                                 cout << "inside NS_FOLLOW_WALL : next state NS_MOVE_AWAY_FROM_WALL"<<endl;
+                                */
 
                             }
 
