@@ -245,7 +245,7 @@ void navigate(void* _robot)
 
 #if true
 
-    const int temp_SEARCHING_SPEED = 300;
+    const int RotationSpeed = 300; /// @ 300mmps, and sleep interval 15ms, it takes approx 230 slot for a 360 movement
     int temp_sleepTimeMS = 15;
     short wallSignal_temp ;
 
@@ -264,7 +264,7 @@ void navigate(void* _robot)
     while (!robot.playButton ())
     {
         wallSignal_temp = robot.wallSignal();
-
+/*
         if(findMax == wallSignal_temp &&  (100 < findMax) )
         {
 
@@ -278,12 +278,16 @@ void navigate(void* _robot)
         {
             if(findMax < wallSignal_temp)
                 findMax = wallSignal_temp;
-            robot.sendDriveCommand(temp_SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+            robot.sendDriveCommand(RotationSpeed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
         }
-
+*/
+        robot.sendDriveCommand(RotationSpeed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
         counter++;
         cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
         this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
+
+        if(counter == 230)
+            return;
 
     }
 
@@ -303,6 +307,8 @@ void navigate(void* _robot)
 
 
     const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 20;
+
+    const int n_ROTATIOIN_SPEED = 300; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 230 slot for a 360 rotation
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 40;
