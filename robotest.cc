@@ -938,6 +938,10 @@ void navigate(void* _robot)
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
 
+
+
+                            cout<<"good bye 1"<<endl;
+
                             return; // TODO: test purpose... remove
 
 
@@ -955,6 +959,7 @@ void navigate(void* _robot)
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
 
+                            cout<<"good bye 2"<<endl;
                             return;  // TODO: test purpose... remove
 
 
