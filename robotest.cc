@@ -563,6 +563,7 @@ void navigate(void* _robot)
                                 g_navigationStatus = NS_SURVEY;
                                 NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 rotationLimiter = 0;
+                                cout <<"\t\t\t moving to NS_SURVEY"<<endl;
                             }
                         }
 
@@ -609,6 +610,7 @@ void navigate(void* _robot)
                                 g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
                                 rotationLimiter = 0;
                                 g_navigationStatus = NS_POST_SURVEY_ALIGN;
+                                cout <<"\t\t\t moving to NS_POST_SURVEY_ALIGN"<<endl;
 
                             }else {
                                 robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
@@ -650,6 +652,13 @@ void navigate(void* _robot)
                                 backupTimeSlot = 0;
                                 alignLeft = 0;
                                 alignRight = 0;
+                                cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
+
+
+
+                                return ;;
+
+
 
                             }
                             break;
@@ -841,7 +850,7 @@ void navigate(void* _robot)
                         {
                             g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);
 
-                            if(wallSigMgr.isNoWallSignal()) 
+                            if(wallSigMgr.isNoWallSignal())
                             {
                                 if(NULL != surveyManagerPtr)
                                 {
