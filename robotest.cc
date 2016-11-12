@@ -370,6 +370,10 @@ void navigate(void* _robot)
     int alignLeft = 0;
     int alignRight = 0;
     int skipForOvercurrent = 0;
+    int n_consecutiveDecreaseInPostSurveyAlign = 0;
+    double n_prevSignalStrengthInPostSurveyAlign = 0;
+    int n_finalAdjustRotationCountInPostSurveyAlign = 0;
+    const int POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD = 5;
 
     int probRightWall_antiClockWise_smallRotationSlot;
 
@@ -625,6 +629,9 @@ void navigate(void* _robot)
 
                             g_navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
                             rotationLimiter = 0;
+                            n_consecutiveDecreaseInPostSurveyAlign = 0;
+                            n_prevSignalStrengthInPostSurveyAlign = -1.0;
+                            n_finalAdjustRotationCountInPostSurveyAlign = 0;
                         }
 
                         break;
@@ -634,12 +641,63 @@ void navigate(void* _robot)
 
                         current_state_slotCount++;
 
-                        if (rotationLimiter < NS_SURVEY_SLOT_MAX)
+
+                        if(0 < n_finalAdjustRotationCountInPostSurveyAlign)
+                        {
+                            --n_finalAdjustRotationCountInPostSurveyAlign;
+
+                            robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+
+                            if(0 == n_finalAdjustRotationCountInPostSurveyAlign)
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                                g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                                rotationLimiter=0;
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                g_navigationStatus = NS_FOLLOW_WALL;
+                                consecutiveOperation = 0;
+                                backupTimeSlot = 0;
+                                alignLeft = 0;
+                                alignRight = 0;
+                                cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
+                            }
+                        }
+                        else if (rotationLimiter < NS_SURVEY_SLOT_MAX)
                         {
                             rotationLimiter++;
 
+
+                            double signalStrength = surveyManagerPtr->getSignalStrength(wallSignal);
+
+                            if(signalStrength <= n_prevSignalStrengthInPostSurveyAlign) // NOTE:: here i am counting the equal signal strength also...
+                                ++n_consecutiveDecreaseInPostSurveyAlign;
+                            else
+                                n_consecutiveDecreaseInPostSurveyAlign = 0;
+
+                            n_prevSignalStrengthInPostSurveyAlign = signalStrength;
+
+                            if( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD == n_consecutiveDecreaseInPostSurveyAlign) {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                                n_finalAdjustRotationCountInPostSurveyAlign = POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD;
+
+                            } else
+                            {
+                                robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                            }
+
+                            break;
+
+
+
+
+
+/*
                             cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD<<endl;
-                            if (surveyManagerPtr->getSignalStrength(wallSignal) < ALIGNMENT_THRESHOLD)
+                            if (signalStrength < ALIGNMENT_THRESHOLD)
                                 robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                             else
                             {
@@ -653,13 +711,9 @@ void navigate(void* _robot)
                                 alignLeft = 0;
                                 alignRight = 0;
                                 cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
-
-
-
-
-
                             }
                             break;
+                            */
 
                         }
                         else
@@ -691,7 +745,7 @@ void navigate(void* _robot)
 
                             g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
 
-                            cout << "inside NS_FOLLOW_WALL : next state NS_SEARCH_FRONT_WALL"<<endl;
+                            cout << "inside NS_ROTATE_RIGHT_AND_SEARCH : next state NS_SEARCH_FRONT_WALL"<<endl;
 
                             backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, SEARCH_F_WALL_BACKUP_DIST_mm );
                             g_navigationStatus = NS_SEARCH_FRONT_WALL;
