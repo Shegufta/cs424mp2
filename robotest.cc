@@ -878,6 +878,12 @@ void navigate(void* _robot)
                         {
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
+
+                            return;
+
+
+
+
                             g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
 
                             cout << "inside NS_FOLLOW_WALL : next state NS_SEARCH_FRONT_WALL"<<endl;
@@ -887,9 +893,17 @@ void navigate(void* _robot)
                         }
                         else if(robot.bumpRight())
                         {
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+
+                            return;
+
+
+
+
                             cout<<"BUMP RIGHT inside NS_FOLLOW_WALL"<<endl;
 
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
 
                             g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
 
@@ -917,7 +931,7 @@ void navigate(void* _robot)
 
                         {
                             cout << "current_state_slotCount = "<<current_state_slotCount<<"  wallsig = "<<wallSignal << "  sigstrength = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<endl;
-                            if(40 == current_state_slotCount) {
+                            if(100 == current_state_slotCount) {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 return;
                             }
