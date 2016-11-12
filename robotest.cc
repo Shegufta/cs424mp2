@@ -654,7 +654,7 @@ void navigate(void* _robot)
                                 alignRight = 0;
                                 cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
 
-                                
+
 
 
 
@@ -946,12 +946,14 @@ void navigate(void* _robot)
                             }
                             else if(surveyManagerPtr->getSignalStrength(wallSignal) < LOWER_BOUND_OF_VALID_THRESHOLD)
                             {
+                                cout <<"surveyManagerPtr->getSignalStrength(wallSignal)  = " << surveyManagerPtr->getSignalStrength(wallSignal) <<endl;
                                 g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
                                 backupTimeSlot = 0;//calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );// we have already backed up
                                 g_navigationStatus = NS_PRE_SURVEY;
                             }
                             else
                             {
+                                cout << "\t\tSTRAIGHT"<<endl;
                                 robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
                             }
 
