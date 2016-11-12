@@ -911,9 +911,11 @@ void navigate(void* _robot)
                         else
 
                         {
-                            cout << "current_state_slotCount = "<<current_state_slotCount << "  sigstrength = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<endl;
-                            if(20 == current_state_slotCount)
+                            cout << "current_state_slotCount = "<<current_state_slotCount<<"  wallsig = "<<wallSignal << "  sigstrength = "<<surveyManagerPtr->getSignalStrength(wallSignal)<<endl;
+                            if(20 == current_state_slotCount) {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 return;
+                            }
 
                             if(0 < alignLeft)
                             {
