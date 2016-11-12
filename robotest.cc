@@ -309,7 +309,7 @@ void navigate(void* _robot)
 #endif
 
     const double ALIGNMENT_THRESHOLD = 0.9;
-    const double LOWER_BOUND_OF_VALID_THRESHOLD = 0.6;
+    const double LOWER_BOUND_OF_VALID_THRESHOLD = 0.5;
 
     const double INIT_OUTOF_CONTROL_THRESHOLD = 0.4;
     double OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
@@ -1002,7 +1002,7 @@ void navigate(void* _robot)
                                 {
                                     robot.sendDriveCommand(FOLLOW_WALL_SPEED, n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS);
                                     cout<<"\t\tLEFT"<<endl;
-                                    if(!wallSigMgr.isIncreasing())
+                                    if(!wallSigMgr.isIncreasing()  || LOWER_BOUND_OF_VALID_THRESHOLD <= signalStrength)
                                         alignLeft = 0;
 
                                 }
