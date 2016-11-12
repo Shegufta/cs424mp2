@@ -296,7 +296,7 @@ void navigate(void* _robot)
         cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
         this_thread::sleep_for(chrono::milliseconds(temp_sleepTimeMS));
 
-        if(counter == 4)
+        if(counter == 400)
             break;
 
 
