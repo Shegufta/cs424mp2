@@ -995,6 +995,7 @@ void navigate(void* _robot)
 
 
 
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT); // TODO: REMOVE
                                 return; // TODO: removve
 
                             }/*
