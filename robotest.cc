@@ -953,6 +953,11 @@ void navigate(void* _robot)
 
 
 
+                                cout << "BYE 2222"<<endl;
+                                return;
+
+
+
                                 backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
                                 cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
                                 g_navigationStatus = NS_PRE_SURVEY;
@@ -985,7 +990,13 @@ void navigate(void* _robot)
                                 isProbeRightWall_SecondTest = false;
                                 goBackPreviousPosition = 0;
                                 g_navigationStatus = NS_PROBE_RIGHT_WALL;
-                                cout << "inside NS_FOLLOW_WALL : next state NS_PROBE_RIGHT_WALL"<<endl;
+                                cout << "\t\t\t\tinside NS_FOLLOW_WALL : next state NS_PROBE_RIGHT_WALL"<<endl;
+                                cout <<"\t\t\t KILL before Probe Right Wall"<<endl;
+
+
+
+                                return; // TODO: removve
+
                             }/*
                             else if(signalStrength < LOWER_BOUND_OF_VALID_THRESHOLD)
                             {
@@ -1002,7 +1013,7 @@ void navigate(void* _robot)
                                 {
                                     robot.sendDriveCommand(FOLLOW_WALL_SPEED, n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS);
                                     cout<<"\t\tLEFT"<<endl;
-                                    if(!wallSigMgr.isIncreasing()  || LOWER_BOUND_OF_VALID_THRESHOLD <= signalStrength)
+                                    if(!wallSigMgr.isIncreasing())
                                         alignLeft = 0;
 
                                 }
@@ -1015,11 +1026,15 @@ void navigate(void* _robot)
                                 }
                                 else
                                 {
+                                    robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                    /*
                                     if(consecutiveOperation < FOLLOW_WALL_CHECK_SIGNAL_INTERVAL)
                                     {
+                                        ++consecutiveOperation;
+
                                         robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
                                         cout<<"\t\tSTRAIGHT"<<endl;
-                                        consecutiveOperation++;
+
                                     }
                                     else
                                     {
@@ -1047,6 +1062,7 @@ void navigate(void* _robot)
 
 
                                     }
+                                    */
 
                                 }
 
