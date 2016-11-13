@@ -243,7 +243,7 @@ void navigate(void* _robot)
 
 
 
-#if false
+#if true
 
     const int RotationSpeed = 300; /// @ 300mmps, and sleep interval 15ms, it takes approx 184 slot for a 360 degree movement
     int temp_sleepTimeMS = 15;
