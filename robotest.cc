@@ -322,7 +322,7 @@ void navigate(void* _robot)
     const int n_SEARCH_FRONT_WALL_SLOW_BACKUP = 100; // if found front wall, then backup slowly
 
     const int SEARCHING_SPEED = 100;
-    const int MID_BACKUP_DIST_mm = 40;
+    const int MID_BACKUP_DIST_mm = 30;
     const int SEARCH_R_WALL_ForwardDist_mm = 120;
     const int NS_SURVEY_SLOT_MAX = 70; // NOTE: at n_SEARCHING_ROTATION_SPEED = 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation/// We will scan max 135 degree, henc our max slot will be approx 70....   Note, ((360/8)*3) = 135
     const int n_FOLLOW_WALL_CLOCK_WISE_RADIOUS = -50;
@@ -489,7 +489,7 @@ void navigate(void* _robot)
 
                             g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
 
-                            backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
+                            backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCH_FRONT_WALL_SLOW_BACKUP, MID_BACKUP_DIST_mm );
 
                             cout<<"NS_SEARCHING -> BUMP LEFT : next State ->  NS_SEARCH_FRONT_WALL";
 
