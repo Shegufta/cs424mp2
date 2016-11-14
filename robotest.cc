@@ -108,6 +108,7 @@ public:
     {// 1 means larger, 0 means equal, -1 means smaller
         int del = wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1] - wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-2];
 
+        cout <<"\t\t\t\t current Wall Sig = "<<wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1] << " | prev wall sig = " <<wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-2] << endl;
         if(del == 0)
             return 0;
         else if(0 < del)
