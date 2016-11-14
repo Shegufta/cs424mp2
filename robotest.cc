@@ -27,7 +27,6 @@ enum NAVIGATION_STATUS
     NS_PRE_SURVEY,
     NS_MOVE_AWAY_FROM_WALL, //it will be used only for the transition from NS_FOLLOW_WALL to NS_PRE_SURVEY... If robot is inside FOLLOW_WALL , bumpRight()==true and isWallSignal()==true, that means robot is to close to wall... so take a left-back, then hit forward to the wall
     NS_SURVEY,
-    NS_POST_SURVEY_ALIGN,
     NS_FOLLOW_WALL,
     NS_ROTATE_RIGHT_AND_SEARCH,
     NS_SEARCH_FRONT_WALL,
@@ -286,9 +285,10 @@ void navigate(void* _robot)
 
 
 
-#if true
+#if false
 
     const int RotationSpeed = 200; /// @ 300mmps, and sleep interval 15ms, it takes approx 184 slot for a 360 degree movement
+    /// @ 200mmps, and sleep interval 15ms, it takes approx 280 slot for a 360 degree movement
     int temp_sleepTimeMS = 15;
     short wallSignal_temp ;
 
@@ -359,7 +359,6 @@ void navigate(void* _robot)
 #endif
 
     const double ALIGNMENT_THRESHOLD = 0.9;
-    const double LOWER_BOUND_OF_VALID_THRESHOLD = 0.5;
 
     const double INIT_OUTOF_CONTROL_THRESHOLD = 0.4;
     double OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
@@ -367,14 +366,15 @@ void navigate(void* _robot)
 
     const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 20;
 
-    const int n_SEARCHING_ROTATION_SPEED = 200; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
+    const int n_SEARCHING_ROTATION_SPEED = 200;     /// @ 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
+                                                    /// @ 200mmps, and sleep interval 15ms, it takes approx 280 slot for a 360 degree movement
     const int n_SEARCHING_STRAIGHT_SPEED = 200;
     const int n_SEARCH_FRONT_WALL_SLOW_BACKUP = 100; // if found front wall, then backup slowly
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 10;
     const int SEARCH_R_WALL_ForwardDist_mm = 120;
-    const int NS_SURVEY_SLOT_MAX = 70*2; // NOTE: at n_SEARCHING_ROTATION_SPEED = 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation/// We will scan max 135 degree, henc our max slot will be approx 70....   Note, ((360/8)*3) = 135
+    const int NS_SURVEY_SLOT_MAX = 105; // NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation/// We will scan max 135 degree, hence our max slot will be approx 105....   Note, ((360/8)*3) = 135
     const int n_FOLLOW_WALL_CLOCK_WISE_RADIOUS = -200;
     const int n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS = -1 * n_FOLLOW_WALL_CLOCK_WISE_RADIOUS;
     const int SEARCH_RIGHT_WALL_RADIOUS = -185;  // radious 185 is ok when the searching speed is 100mmps
@@ -842,64 +842,7 @@ void navigate(void* _robot)
 
                         break;
                     }
-                    case NS_POST_SURVEY_ALIGN:
-                    {//condition rotationLimiter = 0;
 
-                        current_state_slotCount++;
-
-
-
-                        double signalStrength = surveyManagerPtr->getSignalStrength(wallSignal);
-
-
-
-
-                        if (rotationLimiter < NS_SURVEY_SLOT_MAX)
-                        {
-                            rotationLimiter++;
-
-                            if((0.5 < signalStrength)&&(signalStrength <= n_prevSignalStrengthInPostSurveyAlign) )// NOTE:: here i am counting the equal signal strength also...
-                                ++n_consecutiveDecreaseInPostSurveyAlign;
-                            else
-                                n_consecutiveDecreaseInPostSurveyAlign = 0;
-
-                            n_prevSignalStrengthInPostSurveyAlign = signalStrength;
-
-                            cout <<"\tsurveyManagerPtr->getSignalStrength(wallSignal) = "<<signalStrength<< "   | wallSignal = "<<wallSignal<<"  | ALIGNMENT_THRESHOLD = "<<ALIGNMENT_THRESHOLD <<"  | n_consecutiveDecreaseInPostSurveyAlign"<<n_consecutiveDecreaseInPostSurveyAlign<<endl;
-
-
-
-                            if ( (signalStrength < ALIGNMENT_THRESHOLD) && ( POST_SURVEY_DECREMENT_OR_EQUAL_THRESHOLD != n_consecutiveDecreaseInPostSurveyAlign) )
-                                robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
-                            else
-                            {
-                                g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-
-                                rotationLimiter=0;
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                g_navigationStatus = NS_FOLLOW_WALL;
-                                consecutiveOperation = 0;
-                                backupTimeSlot = 0;
-                                //alignLeft = 0;
-                                alignRight = 0;
-                                cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
-                            }
-                            break;
-
-
-                        }
-                        else
-                        {
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            rotationLimiter = 0;
-                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-                            g_navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
-                            break;
-                        }
-
-
-                        break;
-                    }
 
                     case NS_ROTATE_RIGHT_AND_SEARCH:
                     {
@@ -1318,16 +1261,14 @@ void navigate(void* _robot)
                                 }
                                 else
                                 {// if there is wall signal, do the pre-survay thing
-                                    //TODO: adjust the threshold
 
-                                    cout << "inside NS_PROBE_RIGHT_WALL : next state NS_MOVE_AWAY_FROM_WALL"<<endl;
-                                    g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);
-                                    //backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );  // it is not needed for NS_MOVE_AWAY_FROM_WALL
-                                    rotationTimeSlot = REVERSE_ROTATION_TIME_SLOT;
-                                    g_navigationStatus = NS_MOVE_AWAY_FROM_WALL;
+                                    cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
+                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
+                                    g_navigationStatus = NS_PRE_SURVEY;
 
                                 }
                             }
+                                /*
                             else
                             {
                                 if ((!wallSigMgr.isNoWallSignal())&&( ALIGNMENT_THRESHOLD < surveyManagerPtr->getSignalStrength(wallSignal) ))
@@ -1343,9 +1284,9 @@ void navigate(void* _robot)
                                     alignRight = 0;
 
                                 }
-                            }
+                            }*/
 
-                            robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_PROBE_WALL_RADIOUS);
+                            robot.sendDriveCommand(n_SEARCHING_STRAIGHT_SPEED, SEARCH_PROBE_WALL_RADIOUS);
 
                         }
 
@@ -1472,7 +1413,6 @@ int main ()
     g_stateNameMap[NS_PRE_SURVEY] = "NS_PRE_SURVEY";
     g_stateNameMap[NS_MOVE_AWAY_FROM_WALL] = "NS_MOVE_AWAY_FROM_WALL";
     g_stateNameMap[NS_SURVEY] = "NS_SURVEY";
-    g_stateNameMap[NS_POST_SURVEY_ALIGN] = "NS_POST_SURVEY_ALIGN";
     g_stateNameMap[NS_FOLLOW_WALL] = "NS_FOLLOW_WALL";
     g_stateNameMap[NS_ROTATE_RIGHT_AND_SEARCH] = "NS_ROTATE_RIGHT_AND_SEARCH";
     g_stateNameMap[NS_SEARCH_FRONT_WALL] = "NS_SEARCH_FRONT_WALL";
