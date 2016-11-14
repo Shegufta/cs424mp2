@@ -1199,7 +1199,7 @@ void navigate(void* _robot)
                             }
                             else
                             {
-                                robot.sendDriveCommand (n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_STRAIGHT);
+                                robot.sendDriveCommand (n_SEARCHING_STRAIGHT_SPEED, SEARCH_F_WALL_RADIOUS);
                             }
 
                         }
