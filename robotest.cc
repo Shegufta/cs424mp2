@@ -701,6 +701,7 @@ void navigate(void* _robot)
                                     }
                                     else
                                     {
+                                        cout<<"booooo wall sig "<<wallSignal<<endl;
                                         n_consecutiveClimbDownCounter = 0;
                                         n_consecutiveClimbUpCounter = 0;
 
@@ -720,7 +721,7 @@ void navigate(void* _robot)
                                     if(-1==currentSignalStatus)
                                     {
                                         ++n_consecutiveClimbDownCounter;
-                                        cout<<" NS_SEARCH_FOR_HIGH_GROUND wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<" | n_consecutiveClimbDOWNCounter = "<<n_consecutiveClimbDownCounter<<endl;
+                                        cout<<" NS_SEARCH_MOVE_HIGH_GROUND wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<" | n_consecutiveClimbDOWNCounter = "<<n_consecutiveClimbDownCounter<<endl;
                                         if(n_CONSECUTIVE_DOWN_COUNT == n_consecutiveClimbDownCounter)
                                         {
                                             cout<<"\t Move To NS_SEARCH_REPOSITION"<<endl;
@@ -737,7 +738,7 @@ void navigate(void* _robot)
                                     }
                                     else
                                     {//large or equal
-                                        cout<<" NS_SEARCH_FOR_HIGH_GROUND wallSig = "<<wallSignal<<endl;
+                                        cout<<" NS_SEARCH_MOVE_HIGH_GROUND wallSig = "<<wallSignal<<" | currentSignalStatus = "<<currentSignalStatus<<endl;
                                         n_consecutiveClimbDownCounter =  0;
                                     }
 
