@@ -129,9 +129,8 @@ public:
         return ( WALL_SENSOR_MIN < wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1] );
     }
 
-    bool setMaxAndThreshold()
+    bool setThreshold()
     {
-        max = wallSignalHistoryArray[0];
         threshold = wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1];
     }
 
@@ -747,7 +746,6 @@ void navigate(void* _robot)
                                         cout<<" NS_SEARCH_MOVE_HIGH_GROUND wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<" | n_consecutiveClimbDOWNCounter = "<<n_consecutiveClimbDownCounter<<endl;
                                         if(n_CONSECUTIVE_DOWN_COUNT == n_consecutiveClimbDownCounter)
                                         {
-                                            wallSigMgr.setMaxAndThreshold();
 
                                             cout<<"\t Move To NS_SEARCH_REPOSITION"<<endl;
                                             if(n_isSurveyDirClockWise)
@@ -832,6 +830,7 @@ void navigate(void* _robot)
                                     }
                                     else if (0 == n_consecutiveClimbDownCounter)
                                     {
+                                        wallSigMgr.setThreshold();
                                         cout <<"\t\t\t\t  NS_SEARCH_REPOSITION WALL SIGNAL MAX = "<<wallSignal<<endl;
 
 
