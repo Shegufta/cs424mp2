@@ -1261,13 +1261,6 @@ void navigate(void* _robot)
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
 
-
-                            cout<<"ba bay"<<endl;//todo: remove
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            return;
-
-
-
                             break;
                         }
                         else if(0 < forwardTimeSlot)
@@ -1278,6 +1271,10 @@ void navigate(void* _robot)
 
                             if(0 == forwardTimeSlot)
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                            cout<<"ba bay"<<endl;//todo: remove
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                            return;
 
                             break;
                         }
