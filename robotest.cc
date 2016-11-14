@@ -286,7 +286,7 @@ void navigate(void* _robot)
 
 
 
-#if false
+#if true
 
     const int RotationSpeed = 300; /// @ 300mmps, and sleep interval 15ms, it takes approx 184 slot for a 360 degree movement
     int temp_sleepTimeMS = 15;
@@ -308,6 +308,12 @@ void navigate(void* _robot)
     bool readWallOnly = false;
     while (!robot.playButton ())
     {
+        if(200 ==counter)
+        {
+            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+            break;
+        }
+
         wallSignal_temp = robot.wallSignal();
 
         //robot.sendDriveCommand(_FOLLOW_WALL_SPEED, _ANTICLOCK_WISE_RADIOUS);
@@ -330,9 +336,10 @@ void navigate(void* _robot)
                 findMax = wallSignal_temp;
             robot.sendDriveCommand(RotationSpeed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
         }
+         */
 
         robot.sendDriveCommand(RotationSpeed, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-        */
+
 
         counter++;
         cout <<"counter = "<<counter << "  |  Wall signal " << wallSignal_temp << endl;
@@ -1172,13 +1179,6 @@ void navigate(void* _robot)
                                 isProbeRightWall_SecondTest = false;
                                 goBackPreviousPosition = 0;
                                 g_navigationStatus = NS_PROBE_RIGHT_WALL;
-                                cout << "\t\t\t\tinside NS_FOLLOW_WALL : next state NS_PROBE_RIGHT_WALL"<<endl;
-                                cout <<"\t\t\t KILL before Probe Right Wall"<<endl;
-
-
-
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT); // TODO: REMOVE
-                                return; // TODO: removve
 
                             }
                             else
@@ -1217,7 +1217,6 @@ void navigate(void* _robot)
                     case NS_PROBE_RIGHT_WALL:
                     {
                         current_state_slotCount++;
-
 
 
                         if(isProbeRightWall_SecondTest)
@@ -1284,6 +1283,11 @@ void navigate(void* _robot)
                                 //backupTimeSlot = 0; // we have already backed up
                                 forwardTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, SEARCH_R_WALL_ForwardDist_mm );
                                 g_navigationStatus = NS_SEARCH_RIGHT_WALL;
+
+
+                                cout<<"byeeeeeeeeeeeeee"<<endl;// todo: remove
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                return;
                             }
 
                         }
@@ -1342,7 +1346,6 @@ void navigate(void* _robot)
                             }
 
                             robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_PROBE_WALL_RADIOUS);
-
 
                         }
 
