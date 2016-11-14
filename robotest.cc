@@ -756,6 +756,7 @@ void navigate(void* _robot)
                                                 n_isSurveyDirClockWise = true;
 
 
+                                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT); // TODO: remove
                                             cout<<"bye"<<endl;
                                             return ;
 
