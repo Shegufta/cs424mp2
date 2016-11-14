@@ -1304,7 +1304,14 @@ void navigate(void* _robot)
                                 }
                                 else
                                 {
-                                    robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                    if(wallSigMgr.isCurrentSignal_GTE_threshold())
+                                    {
+                                        robot.sendDriveCommand(FOLLOW_WALL_SPEED, Create::DRIVE_STRAIGHT);
+                                    } else
+                                    {
+                                        robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                    }
+
                                     /*
                                     if(consecutiveOperation < FOLLOW_WALL_CHECK_SIGNAL_INTERVAL)
                                     {
