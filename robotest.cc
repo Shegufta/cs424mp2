@@ -315,7 +315,7 @@ void navigate(void* _robot)
 
     const int SEARCH_F_WALL_BACKUP_DIST_mm = 30;
     const int SEARCH_F_WALL_RADIOUS = 50;
-    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 50;// NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation///
+    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 70;// NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation///
 
     const int FOLLOW_WALL_SPEED = 200;
 
