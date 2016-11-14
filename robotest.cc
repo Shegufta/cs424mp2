@@ -674,7 +674,7 @@ void navigate(void* _robot)
                                         }
                                         else if(0 == currentSignalStatus)
                                         {
-
+                                            cout<<" NS_SEARCH_FOR_HIGH_GROUND wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<endl;
                                         }
                                         else if(-1 == currentSignalStatus)
                                         {
