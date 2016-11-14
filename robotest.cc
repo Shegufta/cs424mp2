@@ -364,7 +364,7 @@ void navigate(void* _robot)
     double OUTOF_CONTROL_THRESHOLD = INIT_OUTOF_CONTROL_THRESHOLD;
 
 
-    const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 40;
+    const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 7;
 
     const int n_SEARCHING_ROTATION_SPEED = 200;     /// @ 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
                                                     /// @ 200mmps, and sleep interval 15ms, it takes approx 280 slot for a 360 degree movement
