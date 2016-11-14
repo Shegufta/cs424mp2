@@ -315,7 +315,7 @@ void navigate(void* _robot)
 
     const int SEARCH_F_WALL_BACKUP_DIST_mm = 80;
     const int SEARCH_F_WALL_RADIOUS = 50;
-    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 80;
+    const int FRONT_WALL_SEARCH_ROTATION_TIME_SLOT = 50;// NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation/// 
 
     const int FOLLOW_WALL_SPEED = 200;
 
@@ -759,15 +759,6 @@ void navigate(void* _robot)
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
 
-
-
-                            cout<<"good bye 1"<<endl;
-
-                            return; // TODO: test purpose... remove
-
-
-
-
                             g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
 
                             cout << "inside NS_FOLLOW_WALL : next state NS_SEARCH_FRONT_WALL"<<endl;
@@ -1086,7 +1077,7 @@ void navigate(void* _robot)
 
                             cout << "inside NS_ROTATE_RIGHT_AND_SEARCH : next state NS_SEARCH_FRONT_WALL"<<endl;
 
-                            backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, SEARCH_F_WALL_BACKUP_DIST_mm );
+                            backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCH_FRONT_WALL_SLOW_BACKUP, SEARCH_F_WALL_BACKUP_DIST_mm );
                             g_navigationStatus = NS_SEARCH_FRONT_WALL;
                             // TODO: handle now ... start searching for front wall
                             cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_ROTATE_RIGHT_AND_SEARCH"<<endl;
@@ -1143,6 +1134,10 @@ void navigate(void* _robot)
                             {
                                 robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                                 rotationTimeSlot = FRONT_WALL_SEARCH_ROTATION_TIME_SLOT;
+
+
+                                cout<<"byeee"<<endl;//todo: remove
+                                return;
                             }
                             break;
                         }
@@ -1153,7 +1148,7 @@ void navigate(void* _robot)
 
                             //////////////////////////////////////////////////////////
 
-                            robot.sendDriveCommand(n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                            robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
                             if(0 == rotationTimeSlot)
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
