@@ -361,14 +361,14 @@ void navigate(void* _robot)
 
     const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 20;
 
-    const int n_SEARCHING_ROTATION_SPEED = 100; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
+    const int n_SEARCHING_ROTATION_SPEED = 300; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
     const int n_SEARCHING_STRAIGHT_SPEED = 200;
     const int n_SEARCH_FRONT_WALL_SLOW_BACKUP = 100; // if found front wall, then backup slowly
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 10;
     const int SEARCH_R_WALL_ForwardDist_mm = 120;
-    const int NS_SURVEY_SLOT_MAX = 70*3; // NOTE: at n_SEARCHING_ROTATION_SPEED = 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation/// We will scan max 135 degree, henc our max slot will be approx 70....   Note, ((360/8)*3) = 135
+    const int NS_SURVEY_SLOT_MAX = 70; // NOTE: at n_SEARCHING_ROTATION_SPEED = 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation/// We will scan max 135 degree, henc our max slot will be approx 70....   Note, ((360/8)*3) = 135
     const int n_FOLLOW_WALL_CLOCK_WISE_RADIOUS = -50;
     const int n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS = -1 * n_FOLLOW_WALL_CLOCK_WISE_RADIOUS;
     const int SEARCH_RIGHT_WALL_RADIOUS = -185;  // radious 185 is ok when the searching speed is 100mmps
@@ -439,7 +439,7 @@ void navigate(void* _robot)
     int n_consecutiveClimbUpCounter = 0;
     int n_consecutiveClimbDownCounter = 0;
     const int n_CONSECUTIVE_UP_COUNT = 3;
-    const int n_CONSECUTIVE_DOWN_COUNT = 3;
+    const int n_CONSECUTIVE_DOWN_COUNT = 1;
 
     //////////////////////////////////////////////////////////////////////
 
@@ -754,6 +754,10 @@ void navigate(void* _robot)
                                                 n_isSurveyDirClockWise = false;
                                             else
                                                 n_isSurveyDirClockWise = true;
+
+
+                                            cout<<"bye"<<endl;
+                                            return ;
 
                                             //n_consecutiveClimbDownCounter = 0;  do not make it zero... use it as a counter for the next state
                                             n_SEARCHING_SUBSTATE = NS_SEARCH_REPOSITION;
