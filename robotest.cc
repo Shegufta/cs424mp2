@@ -50,6 +50,8 @@ private:
     int WALL_SIGNAL_HISTORY_SIZE;
     int WALL_SENSOR_MIN;
     short* wallSignalHistoryArray = NULL;
+    short max;
+    short threshold;
 
 public:
 
@@ -125,6 +127,19 @@ public:
     bool isWallSignalStrongEnough()
     {
         return ( WALL_SENSOR_MIN < wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1] );
+    }
+
+    bool setMaxAndThreshold()
+    {
+        max = wallSignalHistoryArray[0];
+        threshold = wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1];
+    }
+
+    bool isCurrentSignal_GTE_threshold()
+    {
+        short currentSignal = wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1];
+
+        return (threshold <= currentSignal);
     }
 };
 
@@ -346,7 +361,7 @@ void navigate(void* _robot)
 
     const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 20;
 
-    const int n_SEARCHING_ROTATION_SPEED = 200; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
+    const int n_SEARCHING_ROTATION_SPEED = 300; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
     const int n_SEARCHING_STRAIGHT_SPEED = 200;
     const int n_SEARCH_FRONT_WALL_SLOW_BACKUP = 100; // if found front wall, then backup slowly
 
@@ -726,6 +741,8 @@ void navigate(void* _robot)
                                         cout<<" NS_SEARCH_MOVE_HIGH_GROUND wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<" | n_consecutiveClimbDOWNCounter = "<<n_consecutiveClimbDownCounter<<endl;
                                         if(n_CONSECUTIVE_DOWN_COUNT == n_consecutiveClimbDownCounter)
                                         {
+                                            wallSigMgr.setMaxAndThreshold();
+
                                             cout<<"\t Move To NS_SEARCH_REPOSITION"<<endl;
                                             if(n_isSurveyDirClockWise)
                                                 n_isSurveyDirClockWise = false;
@@ -755,7 +772,7 @@ void navigate(void* _robot)
                                 {
                                     cout<<" NS_SEARCH_REPOSITION wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<endl;
 
-                                    if(1 == currentSignalStatus)
+                                    if(wallSigMgr.isCurrentSignal_GTE_threshold())
                                     {
                                         cout <<"\t\t\t\t  NS_SEARCH_REPOSITION WALL SIGNAL MAX = "<<wallSignal<<endl;
 
