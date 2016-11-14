@@ -1151,7 +1151,7 @@ void navigate(void* _robot)
                             }
                             else
                             {// if there is wall signal, do the pre-survay thing
-                                
+
                                 backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
                                 cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
                                 g_navigationStatus = NS_PRE_SURVEY;
@@ -1336,7 +1336,6 @@ void navigate(void* _robot)
                                     g_navigationStatus = NS_FOLLOW_WALL;
                                     consecutiveOperation = 0;
                                     backupTimeSlot = 0;
-                                    alignLeft = 0;
                                     alignRight = 0;
 
                                 }
