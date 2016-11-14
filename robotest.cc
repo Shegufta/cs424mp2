@@ -378,7 +378,8 @@ void navigate(void* _robot)
     const int n_FOLLOW_WALL_CLOCK_WISE_RADIOUS = -200;
     const int n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS = -1 * n_FOLLOW_WALL_CLOCK_WISE_RADIOUS;
     const int SEARCH_RIGHT_WALL_RADIOUS = -185;  // radious 185 is ok when the searching speed is 100mmps
-
+    const int NS_PROBEWALL_ANTICLOCK_ROTATION_MAX = 70;// NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation/// so for 90 degree, it will tak 70 slots
+    const int PROBE_RIGHTWALL_ANTCLOCK_SMALL_ROTATION = 8;// NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation/// so for 10 degree, it will tak 7.7 slots (approx 8)
 
 
     const int SEARCH_PROBE_WALL_RADIOUS = -280;
@@ -403,7 +404,7 @@ void navigate(void* _robot)
     const int MAX_OVERCURRENT_SAFE_SLOT = 3;
     int overcurrentSlotCounter = 0;
 
-    const int PROBE_RIGHTWALL_ANTCLOCK_SMALL_ROTATION = 25;
+
     ////////////////////////////
 
 
@@ -1166,14 +1167,15 @@ void navigate(void* _robot)
                         {
                             if(0 < backupTimeSlot)
                             {
-                                backupTimeSlot--;
+                                --backupTimeSlot;
 
-                                robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                                robot.sendDriveCommand (-n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_STRAIGHT);
 
                                 if(0 == backupTimeSlot)
                                 {
                                     robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                                     rotationLimiter = 0;
+                                    probRightWall_antiClockWise_smallRotationSlot = PROBE_RIGHTWALL_ANTCLOCK_SMALL_ROTATION;
                                 }
 
                                 break;
@@ -1181,18 +1183,23 @@ void navigate(void* _robot)
                             else if(0 < probRightWall_antiClockWise_smallRotationSlot)
                             {
                                 --probRightWall_antiClockWise_smallRotationSlot;
-                                robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
                                 if(probRightWall_antiClockWise_smallRotationSlot == 0)
                                     robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                             }
                             else if(0 < forwardTimeSlot)
                             {
-                                forwardTimeSlot--;
-                                robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                                if(robot.bumpLeft() || robot.bumpRight())
+                                {
+                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                    backupTimeSlot = forwardTimeSlot;
+                                }
+                                --forwardTimeSlot;
+                                robot.sendDriveCommand (n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_STRAIGHT);
                             }
-                            else if(rotationLimiter < NS_SURVEY_SLOT_MAX/5)
-                            {
-                                rotationLimiter++;
+                            else if(rotationLimiter < NS_PROBEWALL_ANTICLOCK_ROTATION_MAX)
+                            {// search for 90 degree
+                                ++rotationLimiter;
 
                                 if(!wallSigMgr.isNoWallSignal())
                                 {
@@ -1202,17 +1209,18 @@ void navigate(void* _robot)
                                     g_navigationStatus = NS_PRE_SURVEY;
                                 }
 
-                                robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                                robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
-                                if( NS_SURVEY_SLOT_MAX/5  == rotationLimiter )
+                                if( NS_PROBEWALL_ANTICLOCK_ROTATION_MAX  == rotationLimiter )
                                 {
+                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                     goBackPreviousPosition = rotationLimiter;
                                 }
                             }
                             else if(0 < goBackPreviousPosition)
                             {
                                 goBackPreviousPosition--;
-                                robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                             }
                             else
                             {
@@ -1254,37 +1262,21 @@ void navigate(void* _robot)
                                 {
                                     cout<<"\n\t #### inside NS_PROBE_RIGHT_WALL :: NO WALL SIGNAL :: START SECOND LEVEL PROBING..."<<endl;
                                     isProbeRightWall_SecondTest = true;
-                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
+                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
 
                                     forwardTimeSlot = backupTimeSlot;
-                                    probRightWall_antiClockWise_smallRotationSlot = PROBE_RIGHTWALL_ANTCLOCK_SMALL_ROTATION;
+
                                 }
                                 else
                                 {// if there is wall signal, do the pre-survay thing
 
                                     cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
+                                    isProbeRightWall_SecondTest = false;
                                     backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
                                     g_navigationStatus = NS_PRE_SURVEY;
 
                                 }
                             }
-                                /*
-                            else
-                            {
-                                if ((!wallSigMgr.isNoWallSignal())&&( ALIGNMENT_THRESHOLD < surveyManagerPtr->getSignalStrength(wallSignal) ))
-                                {
-                                    cout << "inside NS_PROBE_RIGHT_WALL : next state NS_FOLLOW_WALL"<<endl;
-                                    g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-
-                                    rotationLimiter=0;
-                                    robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                    g_navigationStatus = NS_FOLLOW_WALL;
-                                    consecutiveOperation = 0;
-                                    backupTimeSlot = 0;
-                                    alignRight = 0;
-
-                                }
-                            }*/
 
                             robot.sendDriveCommand(n_SEARCHING_STRAIGHT_SPEED, SEARCH_PROBE_WALL_RADIOUS);
 
