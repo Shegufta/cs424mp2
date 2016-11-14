@@ -717,7 +717,7 @@ void navigate(void* _robot)
                                         cout<<" NS_SEARCH_FOR_HIGH_GROUND wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<" | n_consecutiveClimbDOWNCounter = "<<n_consecutiveClimbDownCounter<<endl;
                                         if(n_CONSECUTIVE_DOWN_COUNT == n_consecutiveClimbDownCounter)
                                         {
-                                            cout<<"\t Move To NS_SEARCH_REPOSITION"<<end;
+                                            cout<<"\t Move To NS_SEARCH_REPOSITION"<<endl;
                                             if(n_isSurveyDirClockWise)
                                                 n_isSurveyDirClockWise = false;
                                             else
