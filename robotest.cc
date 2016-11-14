@@ -1150,12 +1150,6 @@ void navigate(void* _robot)
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
-
-
-
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                cout<<"byeee"<<endl;//todo: remove
-                                return;
                             }
 
 
