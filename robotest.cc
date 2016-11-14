@@ -656,7 +656,7 @@ void navigate(void* _robot)
 
                                             if(n_CONSECUTIVE_UP_COUNT == n_consecutiveClimbUpCounter)
                                             {
-                                                cout<<"\t Move To NS_SEARCH_MOVE_HIGH_GROUND"<<end;
+                                                cout<<"\t Move To NS_SEARCH_MOVE_HIGH_GROUND"<<endl;
                                                 n_consecutiveClimbUpCounter = 0;
                                                 n_SEARCHING_SUBSTATE = NS_SEARCH_MOVE_HIGH_GROUND;
                                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
