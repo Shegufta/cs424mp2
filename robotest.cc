@@ -1156,7 +1156,7 @@ void navigate(void* _robot)
                         else
 
                         {
-                            double signalStrength = surveyManagerPtr->getSignalStrength(wallSignal);
+                            double signalStrength = -1234;//surveyManagerPtr->getSignalStrength(wallSignal);
 
                             cout <<"wallSignal = " << wallSignal <<"     |   surveyManagerPtr->getSignalStrength(wallSignal)  = " << signalStrength <<endl;
 
