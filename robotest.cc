@@ -643,20 +643,27 @@ void navigate(void* _robot)
                             {
                                 case NS_SEARCH_FOR_HIGH_GROUND:
                                 {
+
                                     if(wallSigMgr.isWallSignalStrongEnough())
                                     {
+
                                         if(1 == currentSignalStatus)
                                         {
                                             ++n_consecutiveClimbUpCounter;
                                             n_consecutiveClimbDownCounter = 0;
 
+                                            cout<<" NS_SEARCH_FOR_HIGH_GROUND wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<" | n_consecutiveClimbUPCounter = "<<n_consecutiveClimbUpCounter<<endl;
+
                                             if(n_CONSECUTIVE_UP_COUNT == n_consecutiveClimbUpCounter)
                                             {
+                                                cout<<"\t Move To NS_SEARCH_MOVE_HIGH_GROUND"<<end;
                                                 n_consecutiveClimbUpCounter = 0;
                                                 n_SEARCHING_SUBSTATE = NS_SEARCH_MOVE_HIGH_GROUND;
                                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                                 break;
                                             }
+
+
 
                                         }
                                         else if(0 == currentSignalStatus)
@@ -667,6 +674,8 @@ void navigate(void* _robot)
                                         {
                                             ++n_consecutiveClimbDownCounter;
                                             n_consecutiveClimbUpCounter = 0;
+
+                                            cout<<" NS_SEARCH_FOR_HIGH_GROUND wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<" | n_consecutiveClimbDOWNCounter = "<<n_consecutiveClimbDownCounter<<endl;
 
                                             if(n_CONSECUTIVE_DOWN_COUNT == n_consecutiveClimbDownCounter)
                                             {// it is climbing DOWN.... so change the direction and change state
@@ -705,9 +714,10 @@ void navigate(void* _robot)
                                     if(-1==currentSignalStatus)
                                     {
                                         ++n_consecutiveClimbDownCounter;
+                                        cout<<" NS_SEARCH_FOR_HIGH_GROUND wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<" | n_consecutiveClimbDOWNCounter = "<<n_consecutiveClimbDownCounter<<endl;
                                         if(n_CONSECUTIVE_DOWN_COUNT == n_consecutiveClimbDownCounter)
                                         {
-                                            cout <<"\t\t\t\t WALL SIGNAL MIN = "<<wallSignal<<endl;
+                                            cout<<"\t Move To NS_SEARCH_REPOSITION"<<end;
                                             if(n_isSurveyDirClockWise)
                                                 n_isSurveyDirClockWise = false;
                                             else
@@ -721,6 +731,7 @@ void navigate(void* _robot)
                                     }
                                     else
                                     {//large or equal
+                                        cout<<" NS_SEARCH_FOR_HIGH_GROUND wallSig = "<<wallSignal<<endl;
                                         n_consecutiveClimbDownCounter =  0;
                                     }
 
@@ -733,6 +744,8 @@ void navigate(void* _robot)
                                 }
                                 case NS_SEARCH_REPOSITION:
                                 {
+                                    cout<<" NS_SEARCH_REPOSITION wallSig = "<<wallSignal <<endl;
+
                                     if(0 < n_consecutiveClimbDownCounter)
                                     {
                                         --n_consecutiveClimbDownCounter;
@@ -746,7 +759,14 @@ void navigate(void* _robot)
                                     }
                                     else if (0 == n_consecutiveClimbDownCounter)
                                     {
-                                        cout <<"\t\t\t\t WALL SIGNAL MAX = "<<wallSignal<<endl;
+                                        cout <<"\t\t\t\t  NS_SEARCH_REPOSITION WALL SIGNAL MAX = "<<wallSignal<<endl;
+
+
+
+                                        cout<<"bye"<<endl;//TODO: remove
+                                        robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);//TODO: remove
+                                        return;//TODO: remove
+
 
                                         g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
 
