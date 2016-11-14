@@ -439,7 +439,7 @@ void navigate(void* _robot)
     int n_consecutiveClimbUpCounter = 0;
     int n_consecutiveClimbDownCounter = 0;
     const int n_CONSECUTIVE_UP_COUNT = 3;
-    const int n_CONSECUTIVE_DOWN_COUNT = 1;
+    const int n_CONSECUTIVE_DOWN_COUNT = 3;
 
     //////////////////////////////////////////////////////////////////////
 
