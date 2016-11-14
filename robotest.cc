@@ -1258,7 +1258,14 @@ void navigate(void* _robot)
                             robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
                             if(0 == rotationTimeSlot)
+                            {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+
+                                cout<<"ba bay"<<endl;//todo: remove
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                return;
+                            }
 
 
                             break;
@@ -1273,7 +1280,7 @@ void navigate(void* _robot)
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
-                                
+
                                 cout<<"ba bay"<<endl;//todo: remove
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                 return;
