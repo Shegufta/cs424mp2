@@ -910,101 +910,7 @@ void navigate(void* _robot)
                         }
                         break;
                     }
-                    case NS_SEARCH_RIGHT_WALL:
-                    {//rotationTimeSlot = some value;
-                        //backupTimeSlot = some value;
 
-                        current_state_slotCount++;
-
-                        if(0 < backupTimeSlot)
-                        {
-                            backupTimeSlot--;
-
-                            robot.sendDriveCommand (-SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
-
-                            if(0 == backupTimeSlot)
-                                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
-
-                            break;
-                        }
-                        else if( ((0 < rotationTimeSlot) || (0 < forwardTimeSlot) ) && ((robot.bumpLeft())||(robot.bumpRight())) )
-                        {
-                            if(robot.bumpLeft())
-                            {
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_SEARCH_RIGHT_WALL"<<endl;
-                                //TODO: search for front wall
-
-                            }
-                            else if(robot.bumpRight())
-                            {
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-
-                                g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-
-                                if(wallSigMgr.isNoWallSignal())
-                                {
-                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-
-                                    if(NULL != surveyManagerPtr)
-                                    {
-                                        delete surveyManagerPtr;
-                                        surveyManagerPtr = NULL;
-                                    }
-
-
-                                    n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
-                                    n_isSurveyDirClockWise = false;
-                                    n_consecutiveClimbUpCounter = 0;
-                                    n_consecutiveClimbDownCounter = 0;
-                                    rotationLimiter = 0;
-                                    g_navigationStatus = NS_SURVEY;
-
-                                }
-                                else
-                                {
-                                    cout << "\tinside NS_SEARCH_RIGHT_WALL, else_if GO TO -> NS_PRE_SURVEY"<<endl;
-                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-                                    g_navigationStatus = NS_PRE_SURVEY;
-                                }
-
-                            }
-
-                            break;
-
-                        }
-                        else if(0 < rotationTimeSlot)
-                        {
-                            //cout << "\trotationTimeSlot = "<< rotationTimeSlot<<endl;
-                            rotationTimeSlot--;
-
-                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
-
-                            if(0 == rotationTimeSlot)
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-
-                            break;
-                        }
-                        else if(0 < forwardTimeSlot)
-                        {
-                            forwardTimeSlot--;
-
-                            robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
-
-                            if(0 == forwardTimeSlot)
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-
-                            break;
-                        }
-                        else
-                        {
-                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-                            g_navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
-                            break;
-                        }
-
-                        break;
-                    }
                     case NS_MOVE_AWAY_FROM_WALL:
                     {//rotationTimeSlot and backupTimeSlot
                         current_state_slotCount++;
@@ -1230,15 +1136,11 @@ void navigate(void* _robot)
                                 isProbeRightWall_SecondTest = false;
 
                                 rotationTimeSlot = RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
-                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
+                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
                                 //backupTimeSlot = 0; // we have already backed up
-                                forwardTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, SEARCH_R_WALL_ForwardDist_mm );
+                                forwardTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, SEARCH_R_WALL_ForwardDist_mm );
                                 g_navigationStatus = NS_SEARCH_RIGHT_WALL;
 
-
-                                cout<<"byeeeeeeeeeeeeee"<<endl;// todo: remove
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                return;
                             }
 
                         }
@@ -1251,7 +1153,7 @@ void navigate(void* _robot)
 
                                 cout << "inside NS_PROBE_RIGHT_WALL : next state NS_SEARCHING"<<endl;
                                 g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
                                 g_navigationStatus = NS_SEARCHING;
                             }
                             else if(robot.bumpRight())
@@ -1282,9 +1184,107 @@ void navigate(void* _robot)
 
                         }
 
+                        break;
+                    }
+
+                    case NS_SEARCH_RIGHT_WALL:
+                    {//rotationTimeSlot = some value;
+                        //backupTimeSlot = some value;
+
+                        current_state_slotCount++;
+
+                        if(0 < backupTimeSlot)
+                        {
+                            backupTimeSlot--;
+
+                            robot.sendDriveCommand (-n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_STRAIGHT);
+
+                            if(0 == backupTimeSlot)
+                                robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
+
+                            break;
+                        }
+                        else if( ((0 < rotationTimeSlot) || (0 < forwardTimeSlot) ) && ((robot.bumpLeft())||(robot.bumpRight())) )
+                        {
+                            if(robot.bumpLeft())
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_SEARCH_RIGHT_WALL"<<endl;
+                                //TODO: search for front wall
+
+                            }
+                            else if(robot.bumpRight())
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                                g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                                if(wallSigMgr.isNoWallSignal())
+                                {
+                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
+
+                                    if(NULL != surveyManagerPtr)
+                                    {
+                                        delete surveyManagerPtr;
+                                        surveyManagerPtr = NULL;
+                                    }
+
+
+                                    n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
+                                    n_isSurveyDirClockWise = false;
+                                    n_consecutiveClimbUpCounter = 0;
+                                    n_consecutiveClimbDownCounter = 0;
+                                    rotationLimiter = 0;
+                                    g_navigationStatus = NS_SURVEY;
+
+                                }
+                                else
+                                {
+                                    cout << "\tinside NS_SEARCH_RIGHT_WALL, else_if GO TO -> NS_PRE_SURVEY"<<endl;
+                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
+                                    g_navigationStatus = NS_PRE_SURVEY;
+                                }
+
+                            }
+
+                            break;
+
+                        }
+                        else if(0 < rotationTimeSlot)
+                        {
+                            //cout << "\trotationTimeSlot = "<< rotationTimeSlot<<endl;
+                            rotationTimeSlot--;
+
+                            robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+                            if(0 == rotationTimeSlot)
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
 
 
+                            return;
+
+
+
+                            break;
+                        }
+                        else if(0 < forwardTimeSlot)
+                        {
+                            forwardTimeSlot--;
+
+                            robot.sendDriveCommand (n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_STRAIGHT);
+
+                            if(0 == forwardTimeSlot)
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                            break;
+                        }
+                        else
+                        {
+                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                            g_navigationStatus = NS_ROTATE_RIGHT_AND_SEARCH;
+                            break;
+                        }
 
                         break;
                     }
