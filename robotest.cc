@@ -359,7 +359,6 @@ void navigate(void* _robot)
 
     g_navigationStatus = NS_SEARCHING;
     current_state_slotCount = 0;
-    surveyManagerPtr = NULL;
 
     //////////////////////__new_strategy_13Nov2016////////////////////////
     //short prevWallSignal = 0;
