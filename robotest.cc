@@ -346,7 +346,7 @@ void navigate(void* _robot)
 
     const int RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT = 20;
 
-    const int n_SEARCHING_ROTATION_SPEED = 300; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
+    const int n_SEARCHING_ROTATION_SPEED = 200; // NOTE: at 300mmps and 15ms sleep interval, it takes approx 184 slot for a 360 degree rotation
     const int n_SEARCHING_STRAIGHT_SPEED = 200;
     const int n_SEARCH_FRONT_WALL_SLOW_BACKUP = 100; // if found front wall, then backup slowly
 
