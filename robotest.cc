@@ -35,6 +35,12 @@ enum NAVIGATION_STATUS
     NS_PROBE_RIGHT_WALL
 };
 
+enum NS_SEARCHING_SUBSTATE
+{
+    NS_SEARCH_FOR_HIGH_GROUND,
+    NS_SEARCH_MOVE_HIGH_GROUND,
+    NS_SEARCH_REPOSITION
+};
 
 void navigate(void*);
 
@@ -96,6 +102,23 @@ public:
     bool isNoWallSignal()
     {
         return (getAverage() < WALL_SENSOR_MIN);
+    }
+
+    int getCurrentSignalStatus()
+    {// 1 means larger, 0 means equal, -1 means smaller
+        int del = wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1] - wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-2];
+
+        if(del == 0)
+            return 0;
+        else if(0 < del)
+            return 1;
+        else if(del < 0)
+            return -1;
+    }
+
+    bool isWallSignalStrongEnough()
+    {
+        return ( WALL_SENSOR_MIN < wallSignalHistoryArray[WALL_SIGNAL_HISTORY_SIZE-1] );
     }
 };
 
@@ -387,6 +410,18 @@ void navigate(void* _robot)
     current_state_slotCount = 0;
     surveyManagerPtr = NULL;
 
+    //////////////////////__new_strategy_13Nov2016////////////////////////
+    //short prevWallSignal = 0;
+    bool n_isSurveyDirClockWise = false;
+    NS_SEARCHING_SUBSTATE n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
+    int n_consecutiveEventCounter = 0;
+    int n_consecutiveClimbUpCounter = 0;
+    int n_consecutiveClimbDownCounter = 0;
+    const int n_CONSECUTIVE_UP_COUNT = 3;
+    const int n_CONSECUTIVE_DOWN_COUNT = 3;
+
+    //////////////////////////////////////////////////////////////////////
+
 
     g_Is_Taking_Picture = false;
     try
@@ -462,6 +497,7 @@ void navigate(void* _robot)
 
                 switch(g_navigationStatus)
                 {
+
                     case NS_SEARCHING:
                     {
                         current_state_slotCount++; // TODO: initiate it to zero
@@ -579,7 +615,14 @@ void navigate(void* _robot)
                         //rotationLimiter = 0;
                         // Make sure, surveyManagerPtr is a new instance, before moving to this state, free it and set it to null
 
-                        current_state_slotCount++;
+                        // SET n_isSurveyDirClockWise
+                        // n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
+                        // n_consecutiveEventCounter = 0
+
+                        //n_consecutiveClimbUpCounter = 0
+                        //n_consecutiveClimbDownCounter = 0
+
+                        ++current_state_slotCount;
 
                         if (0 < backupTimeSlot)
                         {
@@ -591,8 +634,140 @@ void navigate(void* _robot)
                         }
                         else if (rotationLimiter < NS_SURVEY_SLOT_MAX)
                         {
+                            ++rotationLimiter;
 
-                            rotationLimiter++; // we will not count the backup time here !
+
+                            int currentSignalStatus = wallSigMgr.getCurrentSignalStatus();
+
+                            switch(n_SEARCHING_SUBSTATE)
+                            {
+                                case NS_SEARCH_FOR_HIGH_GROUND:
+                                {
+                                    if(wallSigMgr.isWallSignalStrongEnough())
+                                    {
+                                        if(1 == currentSignalStatus)
+                                        {
+                                            ++n_consecutiveClimbUpCounter;
+                                            n_consecutiveClimbDownCounter = 0;
+
+                                            if(n_CONSECUTIVE_UP_COUNT == n_consecutiveClimbUpCounter)
+                                            {
+                                                n_consecutiveClimbUpCounter = 0;
+                                                n_SEARCHING_SUBSTATE = NS_SEARCH_MOVE_HIGH_GROUND;
+                                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                                break;
+                                            }
+
+                                        }
+                                        else if(0 == currentSignalStatus)
+                                        {
+
+                                        }
+                                        else if(-1 == currentSignalStatus)
+                                        {
+                                            ++n_consecutiveClimbDownCounter;
+                                            n_consecutiveClimbUpCounter = 0;
+
+                                            if(n_CONSECUTIVE_DOWN_COUNT == n_consecutiveClimbDownCounter)
+                                            {// it is climbing DOWN.... so change the direction and change state
+                                                if(n_isSurveyDirClockWise)
+                                                    n_isSurveyDirClockWise = false;
+                                                else
+                                                    n_isSurveyDirClockWise = true;
+
+                                                n_consecutiveClimbDownCounter = 0;
+                                                n_SEARCHING_SUBSTATE = NS_SEARCH_MOVE_HIGH_GROUND;
+                                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                                break;
+                                            }
+                                        }
+
+
+                                    }
+                                    else
+                                    {
+                                        n_consecutiveClimbDownCounter = 0;
+                                        n_consecutiveClimbUpCounter = 0;
+
+                                    }
+
+                                    if(n_isSurveyDirClockWise)
+                                        robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                    else
+                                        robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+
+                                    break;
+                                }
+
+                                case NS_SEARCH_MOVE_HIGH_GROUND:
+                                {
+                                    if(-1==currentSignalStatus)
+                                    {
+                                        ++n_consecutiveClimbDownCounter;
+                                        if(n_CONSECUTIVE_DOWN_COUNT == n_consecutiveClimbDownCounter)
+                                        {
+                                            if(n_isSurveyDirClockWise)
+                                                n_isSurveyDirClockWise = false;
+                                            else
+                                                n_isSurveyDirClockWise = true;
+
+                                            //n_consecutiveClimbDownCounter = 0;  // NOTE  : DONOT make it zero... rather use it as a counter for the next state
+                                            n_SEARCHING_SUBSTATE = NS_SEARCH_REPOSITION;
+                                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {//large or equal
+                                        n_consecutiveClimbDownCounter =  0;
+                                    }
+
+                                    if(n_isSurveyDirClockWise)
+                                        robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                    else
+                                        robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+                                    break;
+                                }
+                                case NS_SEARCH_REPOSITION:
+                                {
+                                    if(0 < n_consecutiveClimbDownCounter)
+                                    {
+                                        --n_consecutiveClimbDownCounter;
+
+                                        if(n_isSurveyDirClockWise)
+                                            robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                        else
+                                            robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+
+
+                                    }
+                                    else if (0 == n_consecutiveClimbDownCounter)
+                                    {
+                                        g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                                        rotationLimiter=0;
+                                        robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                        g_navigationStatus = NS_FOLLOW_WALL;
+                                        consecutiveOperation = 0;
+                                        backupTimeSlot = 0;
+                                        alignLeft = 0;
+                                        alignRight = 0;
+                                        cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
+
+                                        robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                        break;
+                                    }
+
+                                    break;
+                                }
+                            }
+
+
+
+
+                            /*
 
                             if (NULL == surveyManagerPtr)
                                 surveyManagerPtr = new SurveyManager;
@@ -617,9 +792,11 @@ void navigate(void* _robot)
                                 g_navigationStatus = NS_POST_SURVEY_ALIGN;
                                 cout <<"\t\t\t moving to NS_POST_SURVEY_ALIGN"<<endl;
 
+
                             }else {
                                 robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
                             }
+                             */
                         }
                         else
                         {
@@ -1382,6 +1559,7 @@ void navigate(void* _robot)
 
 
             //cout << "Wall signal " << wallSignal << "     sleep time "<<g_sleepTimeMS << "    navStatus = " << g_navigationStatus<< endl;
+
 
             this_thread::sleep_for(chrono::milliseconds(g_sleepTimeMS));
 
