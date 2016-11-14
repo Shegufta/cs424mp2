@@ -1134,10 +1134,6 @@ void navigate(void* _robot)
                             {
                                 robot.sendDriveCommand (0, Create::DRIVE_STRAIGHT);
                                 rotationTimeSlot = FRONT_WALL_SEARCH_ROTATION_TIME_SLOT;
-
-
-                                cout<<"byeee"<<endl;//todo: remove
-                                return;
                             }
                             break;
                         }
@@ -1151,7 +1147,17 @@ void navigate(void* _robot)
                             robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
                             if(0 == rotationTimeSlot)
+                            {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+
+
+
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                cout<<"byeee"<<endl;//todo: remove
+                                return;
+                            }
+
 
                             break;
                         }
