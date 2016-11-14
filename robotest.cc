@@ -623,6 +623,12 @@ void navigate(void* _robot)
                                     surveyManagerPtr = NULL;
                                 }
 
+
+                                n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
+                                n_isSurveyDirClockWise = false;
+                                n_consecutiveClimbUpCounter = 0;
+                                n_consecutiveClimbDownCounter = 0;
+
                                 g_navigationStatus = NS_SURVEY;
                                 NS_SURVEY_ISwallAvgHighValueSeen = false;
                                 rotationLimiter = 0;
@@ -638,7 +644,7 @@ void navigate(void* _robot)
                         //rotationLimiter = 0;
                         // Make sure, surveyManagerPtr is a new instance, before moving to this state, free it and set it to null
 
-                        // SET n_isSurveyDirClockWise
+                        // n_isSurveyDirClockWise = false;
                         // n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
                         // n_consecutiveEventCounter = 0
 
@@ -784,6 +790,11 @@ void navigate(void* _robot)
 
 
                                         g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                                        n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
+                                        n_isSurveyDirClockWise = false;
+                                        n_consecutiveClimbUpCounter = 0;
+                                        n_consecutiveClimbDownCounter = 0;
 
                                         rotationLimiter=0;
                                         robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
