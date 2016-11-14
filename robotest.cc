@@ -1135,7 +1135,7 @@ void navigate(void* _robot)
                                 cout << "inside NS_PROBE_RIGHT_WALL : next state NS_SEARCH_RIGHT_WALL"<<endl;
                                 isProbeRightWall_SecondTest = false;
 
-                                rotationTimeSlot = RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
+                                rotationTimeSlot = 0;//RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
                                 backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
                                 //backupTimeSlot = 0; // we have already backed up
                                 forwardTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, SEARCH_R_WALL_ForwardDist_mm );
@@ -1260,11 +1260,6 @@ void navigate(void* _robot)
                             if(0 == rotationTimeSlot)
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-
-
-                                cout<<"ba bay"<<endl;//todo: remove
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                return;
                             }
 
 
