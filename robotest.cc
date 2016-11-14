@@ -755,7 +755,7 @@ void navigate(void* _robot)
                                             else
                                                 n_isSurveyDirClockWise = true;
 
-                                            n_consecutiveClimbDownCounter = 0;
+                                            //n_consecutiveClimbDownCounter = 0;  do not make it zero... use it as a counter for the next state
                                             n_SEARCHING_SUBSTATE = NS_SEARCH_REPOSITION;
                                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                             break;
@@ -778,6 +778,7 @@ void navigate(void* _robot)
                                 {
                                     cout<<" NS_SEARCH_REPOSITION wallSig = "<<wallSignal <<" | currentSignalStatus = "<<currentSignalStatus <<endl;
 
+                                    /*
                                     if(wallSigMgr.isCurrentSignal_GTE_threshold())
                                     {
                                         cout <<"\t\t\t\t  NS_SEARCH_REPOSITION WALL SIGNAL MAX = "<<wallSignal<<endl;
@@ -811,12 +812,13 @@ void navigate(void* _robot)
                                     }
 
 
+
                                     if(n_isSurveyDirClockWise)
                                         robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
                                     else
                                         robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+*/
 
-                                    /*
                                     if(0 < n_consecutiveClimbDownCounter)
                                     {
                                         --n_consecutiveClimbDownCounter;
@@ -833,13 +835,12 @@ void navigate(void* _robot)
                                         cout <<"\t\t\t\t  NS_SEARCH_REPOSITION WALL SIGNAL MAX = "<<wallSignal<<endl;
 
 
-
-                                        cout<<"bye"<<endl;//TODO: remove
-                                        robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);//TODO: remove
-                                        return;//TODO: remove
-
-
                                         g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                                        n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
+                                        n_isSurveyDirClockWise = false;
+                                        n_consecutiveClimbUpCounter = 0;
+                                        n_consecutiveClimbDownCounter = 0;
 
                                         rotationLimiter=0;
                                         robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
@@ -853,7 +854,11 @@ void navigate(void* _robot)
                                         robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                                         break;
                                     }
-                                     */
+
+                                    if(n_isSurveyDirClockWise)
+                                        robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_CLOCKWISE);
+                                    else
+                                        robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
                                     break;
                                 }
