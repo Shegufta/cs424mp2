@@ -1270,11 +1270,18 @@ void navigate(void* _robot)
                             robot.sendDriveCommand (n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_STRAIGHT);
 
                             if(0 == forwardTimeSlot)
+                            {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
-                            cout<<"ba bay"<<endl;//todo: remove
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                            return;
+                                
+                                cout<<"ba bay"<<endl;//todo: remove
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                return;
+
+                            }
+
+
+
 
                             break;
                         }
