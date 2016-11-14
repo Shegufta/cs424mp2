@@ -288,7 +288,7 @@ void navigate(void* _robot)
 
 #if true
 
-    const int RotationSpeed = 300; /// @ 300mmps, and sleep interval 15ms, it takes approx 184 slot for a 360 degree movement
+    const int RotationSpeed = 200; /// @ 300mmps, and sleep interval 15ms, it takes approx 184 slot for a 360 degree movement
     int temp_sleepTimeMS = 15;
     short wallSignal_temp ;
 
@@ -308,7 +308,7 @@ void navigate(void* _robot)
     bool readWallOnly = false;
     while (!robot.playButton ())
     {
-        if(185 ==counter)
+        if(250 ==counter)
         {
             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
             break;
