@@ -435,8 +435,7 @@ void navigate(void* _robot)
 
         while (!robot.playButton ())
         {
-            short wallSignal = robot.wallSignal();
-            wallSigMgr.appendHistory(wallSignal);
+
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -500,6 +499,9 @@ void navigate(void* _robot)
                 // TODO: turn OFF alarm
 
                 overcurrentSlotCounter = 0;
+
+                short wallSignal = robot.wallSignal();
+                wallSigMgr.appendHistory(wallSignal);
 
                 switch(g_navigationStatus)
                 {
