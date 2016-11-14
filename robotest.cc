@@ -741,23 +741,23 @@ void navigate(void* _robot)
                                         else
                                             robot.sendDriveCommand(n_SEARCHING_ROTATION_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
+                                        if (0 == n_consecutiveClimbDownCounter)
+                                        {
+                                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
 
-                                    }
-                                    else if (0 == n_consecutiveClimbDownCounter)
-                                    {
-                                        g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+                                            rotationLimiter=0;
+                                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                            g_navigationStatus = NS_FOLLOW_WALL;
+                                            consecutiveOperation = 0;
+                                            backupTimeSlot = 0;
+                                            alignLeft = 0;
+                                            alignRight = 0;
+                                            cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
 
-                                        rotationLimiter=0;
-                                        robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                        g_navigationStatus = NS_FOLLOW_WALL;
-                                        consecutiveOperation = 0;
-                                        backupTimeSlot = 0;
-                                        alignLeft = 0;
-                                        alignRight = 0;
-                                        cout <<"\t\t\t moving to NS_FOLLOW_WALL"<<endl;
-
-                                        robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                        break;
+                                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                            break;
+                                        }
+                                        
                                     }
 
                                     break;
