@@ -378,7 +378,7 @@ void navigate(void* _robot)
     const int n_FOLLOW_WALL_CLOCK_WISE_RADIOUS = -200;
     const int n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS = -1 * n_FOLLOW_WALL_CLOCK_WISE_RADIOUS;
     const int SEARCH_RIGHT_WALL_RADIOUS = -185;  // radious 185 is ok when the searching speed is 100mmps
-    const int NS_PROBEWALL_ANTICLOCK_ROTATION_MAX = 70;// NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation/// so for 90 degree, it will tak 70 slots
+    const int NS_PROBEWALL_ANTICLOCK_ROTATION_MAX = 8;////24;// NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation/// so for 90 degree, it will tak 70 slots;; for 30 degree, 24 slots ( approx)
     const int PROBE_RIGHTWALL_ANTCLOCK_SMALL_ROTATION = 8;// NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation/// so for 10 degree, it will tak 7.7 slots (approx 8)
 
 
