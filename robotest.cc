@@ -1262,6 +1262,8 @@ void navigate(void* _robot)
 
 
 
+                            cout<<"ba bay"<<endl;//todo: remove
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
                             return;
 
 
