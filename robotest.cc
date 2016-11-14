@@ -837,10 +837,6 @@ void navigate(void* _robot)
                                         g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
 
 
-                                        robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT); // TODO: remove
-                                        cout<<"bye"<<endl;
-                                        return ;
-
                                         n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
                                         n_isSurveyDirClockWise = false;
                                         n_consecutiveClimbUpCounter = 0;
