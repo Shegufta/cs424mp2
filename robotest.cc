@@ -308,7 +308,7 @@ void navigate(void* _robot)
     bool readWallOnly = false;
     while (!robot.playButton ())
     {
-        if(200 ==counter)
+        if(180 ==counter)
         {
             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
             break;
