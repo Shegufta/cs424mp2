@@ -744,7 +744,7 @@ void navigate(void* _robot)
                                 }
                                 case NS_SEARCH_REPOSITION:
                                 {
-                                    cout<<" NS_SEARCH_REPOSITION wallSig = "<<wallSignal <<endl;
+                                    cout<<" NS_SEARCH_REPOSITION wallSig ... = "<<wallSignal <<endl;
 
                                     if(1 == currentSignalStatus)
                                     {
