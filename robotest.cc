@@ -25,7 +25,6 @@ enum NAVIGATION_STATUS
 {
     NS_SEARCHING,
     NS_PRE_SURVEY,
-    NS_MOVE_AWAY_FROM_WALL, //it will be used only for the transition from NS_FOLLOW_WALL to NS_PRE_SURVEY... If robot is inside FOLLOW_WALL , bumpRight()==true and isWallSignal()==true, that means robot is to close to wall... so take a left-back, then hit forward to the wall
     NS_SURVEY,
     NS_FOLLOW_WALL,
     NS_ROTATE_RIGHT_AND_SEARCH,
@@ -140,79 +139,6 @@ public:
         return (threshold <= currentSignal);
     }
 };
-
-class SurveyManager
-{
-public:
-    std::list<short> wallSensorList;
-    std::list<short>::iterator listIT;
-    bool isFinalized = false;
-
-    short min;
-    short max;
-
-    void init()
-    {
-        wallSensorList.clear();
-    }
-
-    SurveyManager()
-    {
-        init();
-    }
-
-    void pushSurveyData(short wallSensor)
-    {
-        if(false == isFinalized)
-            wallSensorList.push_back(wallSensor);
-    }
-
-    void finalizeSurvey()
-    {
-        wallSensorList.sort();
-
-        min = *(std::min_element(wallSensorList.begin(), wallSensorList.end()));
-        max = *(std::max_element(wallSensorList.begin(), wallSensorList.end()));
-
-        isFinalized = true;
-    }
-
-    double getSignalStrength(short wallSensor)
-    {
-        if(isFinalized)
-        {
-            if(wallSensor < min)
-                return 0.0;
-            else if(max < wallSensor)
-                return 1.0;
-            else
-            {
-                double index = 0.0;
-
-                for(listIT = wallSensorList.begin() ; listIT != wallSensorList.end()  ; ++listIT)
-                {
-                    if(*listIT <= wallSensor)
-                        index++;
-                    else
-                        break;
-
-                }
-
-                return (index/(double)wallSensorList.size());
-            }
-
-        }
-
-        return -1.0;
-
-    }
-
-
-
-};
-
-
-
 
 
 std::map<NAVIGATION_STATUS,string> g_stateNameMap;
@@ -371,7 +297,7 @@ void navigate(void* _robot)
     const int n_SEARCHING_STRAIGHT_SPEED = 200;
     const int n_SEARCH_FRONT_WALL_SLOW_BACKUP = 100; // if found front wall, then backup slowly
 
-    const int SEARCHING_SPEED = 100;
+    //const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 10;
     const int SEARCH_R_WALL_ForwardDist_mm = 50;//120;
     const int NS_SURVEY_SLOT_MAX = 105; // NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation/// We will scan max 135 degree, hence our max slot will be approx 105....   Note, ((360/8)*3) = 135
@@ -429,8 +355,6 @@ void navigate(void* _robot)
 
     bool isProbeRightWall_SecondTest = false;
 
-
-    SurveyManager *surveyManagerPtr = NULL;
     WallSignalManager wallSigMgr(FOLLOW_WALL_CHECK_SIGNAL_INTERVAL, WALL_SENSOR_MIN);
 
     g_navigationStatus = NS_SEARCHING;
@@ -542,12 +466,6 @@ void navigate(void* _robot)
                             break;
                         }
 
-                        if(NULL != surveyManagerPtr)
-                        {
-                            delete surveyManagerPtr;
-                            surveyManagerPtr = NULL;
-                        }
-
                         if(robot.bumpLeft() )
                         {
                             robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
@@ -572,11 +490,6 @@ void navigate(void* _robot)
                             {
                                 cout << "\tGO TO -> NS_SURVEY"<<endl;
 
-                                if(NULL != surveyManagerPtr)
-                                {
-                                    delete surveyManagerPtr;
-                                    surveyManagerPtr = NULL;
-                                }
 
                                 n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
                                 n_isSurveyDirClockWise = false;
@@ -625,12 +538,6 @@ void navigate(void* _robot)
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
 
                                 g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-
-                                if(NULL != surveyManagerPtr)
-                                {
-                                    delete surveyManagerPtr;
-                                    surveyManagerPtr = NULL;
-                                }
 
 
                                 n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
@@ -844,123 +751,6 @@ void navigate(void* _robot)
                         break;
                     }
 
-
-                    case NS_ROTATE_RIGHT_AND_SEARCH:
-                    {
-                        current_state_slotCount++;
-
-                        if(NULL != surveyManagerPtr)
-                        {
-                            delete surveyManagerPtr;
-                            surveyManagerPtr = NULL;
-                        }
-
-                        if(robot.bumpLeft())
-                        {
-                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-
-                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-
-                            cout << "inside NS_ROTATE_RIGHT_AND_SEARCH : next state NS_SEARCH_FRONT_WALL"<<endl;
-
-                            backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, SEARCH_F_WALL_BACKUP_DIST_mm );
-                            g_navigationStatus = NS_SEARCH_FRONT_WALL;
-                            // TODO: handle now ... start searching for front wall
-                            cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_ROTATE_RIGHT_AND_SEARCH"<<endl;
-
-
-                        }
-                        else if(robot.bumpRight())
-                        {
-                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
-
-                            if(wallSigMgr.isNoWallSignal())
-                            {
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                cout << "\tinside NS_ROTATE_RIGHT_AND_SEARCH, GO TO -> NS_SURVEY"<<endl;
-                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-
-                                if(NULL != surveyManagerPtr)
-                                {
-                                    delete surveyManagerPtr;
-                                    surveyManagerPtr = NULL;
-                                }
-
-                                n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
-                                n_isSurveyDirClockWise = false;
-                                n_consecutiveClimbUpCounter = 0;
-                                n_consecutiveClimbDownCounter = 0;
-                                rotationLimiter = 0;
-                                g_navigationStatus = NS_SURVEY;
-
-
-                            }
-                            else
-                            {
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                cout << "\tinside NS_ROTATE_RIGHT_AND_SEARCH, GO TO -> NS_PRE_SURVEY"<<endl;
-                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
-                                g_navigationStatus = NS_PRE_SURVEY;
-                            }
-
-                        }
-                        else
-                        {
-                            robot.sendDriveCommand(SEARCHING_SPEED, SEARCH_RIGHT_WALL_RADIOUS);
-                        }
-                        break;
-                    }
-
-                    case NS_MOVE_AWAY_FROM_WALL:
-                    {//rotationTimeSlot and backupTimeSlot
-                        current_state_slotCount++;
-                            
-                        if(0 < rotationTimeSlot )
-                        {
-                            rotationTimeSlot--;
-
-                            robot.sendDriveCommand(-n_SEARCHING_STRAIGHT_SPEED, REVERSE_ROTATION_RADIOUS);
-
-                            if(0 == rotationTimeSlot)
-                            {
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                backupTimeSlot = 0; // just to be sure !
-                            }
-                        }
-                        else
-                        {
-                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);
-
-                            if(wallSigMgr.isNoWallSignal())
-                            {
-                                if(NULL != surveyManagerPtr)
-                                {
-                                    delete surveyManagerPtr;
-                                    surveyManagerPtr = NULL;
-                                }
-
-                                backupTimeSlot = 0;//calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // we have already backed up
-                                n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
-                                n_isSurveyDirClockWise = false;
-                                n_consecutiveClimbUpCounter = 0;
-                                n_consecutiveClimbDownCounter = 0;
-                                rotationLimiter = 0;
-                                g_navigationStatus = NS_SURVEY;
-
-                            }
-                            else
-                            {
-                                cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
-                                backupTimeSlot = 0;//calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );// we have already backed up
-                                g_navigationStatus = NS_PRE_SURVEY;
-                            }
-                            break;
-                        }
-
-
-                        break;
-                    }
-
                     case NS_FOLLOW_WALL:
                     {// REQUIREMENT: consecutiveOperation = 0
                         current_state_slotCount++;
@@ -1001,8 +791,8 @@ void navigate(void* _robot)
                             {
 
                                 rotationTimeSlot = RIGHT_WALL_SEARCH_NEGATIVE_ROTATION_TIME_SLOT;
-                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
-                                forwardTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, SEARCH_R_WALL_ForwardDist_mm );
+                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm ); // shegufta: instead of declearing a new variable for forwardTimeSlot, to keep thing simple, I have just used backupTimeSlot
+                                forwardTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, SEARCH_R_WALL_ForwardDist_mm );
                                 g_navigationStatus = NS_SEARCH_RIGHT_WALL;
                                 cout << "inside NS_FOLLOW_WALL : next state NS_SEARCH_RIGHT_WALL"<<endl;
                             }
@@ -1018,9 +808,8 @@ void navigate(void* _robot)
                         else
 
                         {
-                            double signalStrength = -1234;//surveyManagerPtr->getSignalStrength(wallSignal);
 
-                            cout <<"wallSignal = " << wallSignal <<"     |   surveyManagerPtr->getSignalStrength(wallSignal)  = " << signalStrength <<endl;
+                            cout <<"wallSignal = " << wallSignal <<endl;
 
                             if(wallSigMgr.isNoWallSignal())
                             {
@@ -1223,11 +1012,6 @@ void navigate(void* _robot)
                                 {
                                     backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
 
-                                    if(NULL != surveyManagerPtr)
-                                    {
-                                        delete surveyManagerPtr;
-                                        surveyManagerPtr = NULL;
-                                    }
 
 
                                     n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
@@ -1274,16 +1058,7 @@ void navigate(void* _robot)
                             if(0 == forwardTimeSlot)
                             {
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-
-
-                                cout<<"ba bay"<<endl;//todo: remove
-                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
-                                return;
-
                             }
-
-
-
 
                             break;
                         }
@@ -1294,6 +1069,64 @@ void navigate(void* _robot)
                             break;
                         }
 
+                        break;
+                    }
+
+
+                    case NS_ROTATE_RIGHT_AND_SEARCH:
+                    {
+                        current_state_slotCount++;
+
+
+
+                        if(robot.bumpLeft())
+                        {
+                            robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+
+                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                            cout << "inside NS_ROTATE_RIGHT_AND_SEARCH : next state NS_SEARCH_FRONT_WALL"<<endl;
+
+                            backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, SEARCH_F_WALL_BACKUP_DIST_mm );
+                            g_navigationStatus = NS_SEARCH_FRONT_WALL;
+                            // TODO: handle now ... start searching for front wall
+                            cout <<"\t\t\t TODO: handle corner case... it should not be a problem for mp2... inside NS_ROTATE_RIGHT_AND_SEARCH"<<endl;
+
+
+                        }
+                        else if(robot.bumpRight())
+                        {
+                            g_AddPosition_RESET_current_state_slotCount(g_navigationStatus, current_state_slotCount);// add how many slot it has been spent in this particular state
+
+                            if(wallSigMgr.isNoWallSignal())
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                cout << "\tinside NS_ROTATE_RIGHT_AND_SEARCH, GO TO -> NS_SURVEY"<<endl;
+                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
+
+
+                                n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
+                                n_isSurveyDirClockWise = false;
+                                n_consecutiveClimbUpCounter = 0;
+                                n_consecutiveClimbDownCounter = 0;
+                                rotationLimiter = 0;
+                                g_navigationStatus = NS_SURVEY;
+
+
+                            }
+                            else
+                            {
+                                robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
+                                cout << "\tinside NS_ROTATE_RIGHT_AND_SEARCH, GO TO -> NS_PRE_SURVEY"<<endl;
+                                backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
+                                g_navigationStatus = NS_PRE_SURVEY;
+                            }
+
+                        }
+                        else
+                        {
+                            robot.sendDriveCommand(n_SEARCHING_STRAIGHT_SPEED, SEARCH_RIGHT_WALL_RADIOUS);
+                        }
                         break;
                     }
 
@@ -1321,7 +1154,7 @@ void navigate(void* _robot)
 
                             //////////////////////////////////////////////////////////
 
-                            robot.sendDriveCommand(SEARCHING_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
+                            robot.sendDriveCommand(n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_INPLACE_COUNTERCLOCKWISE);
 
                             if(0 == rotationTimeSlot)
                                 robot.sendDriveCommand(0, Create::DRIVE_STRAIGHT);
@@ -1340,14 +1173,9 @@ void navigate(void* _robot)
                                 if(wallSigMgr.isNoWallSignal())
                                 {
                                     cout << "\tGO TO -> NS_SURVEY"<<endl;
-                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
 
 
-                                    if(NULL != surveyManagerPtr)
-                                    {
-                                        delete surveyManagerPtr;
-                                        surveyManagerPtr = NULL;
-                                    }
 
                                     n_SEARCHING_SUBSTATE = NS_SEARCH_FOR_HIGH_GROUND;
                                     n_isSurveyDirClockWise = false;
@@ -1361,7 +1189,7 @@ void navigate(void* _robot)
                                 else
                                 {
                                     cout << "\tGO TO -> NS_PRE_SURVEY"<<endl;
-                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, SEARCHING_SPEED, MID_BACKUP_DIST_mm );
+                                    backupTimeSlot = calculateTimeSlot(g_sleepTimeMS, n_SEARCHING_STRAIGHT_SPEED, MID_BACKUP_DIST_mm );
                                     g_navigationStatus = NS_PRE_SURVEY;
                                     cout << "inside NS_SEARCH_FRONT_WALL : next state NS_PRE_SURVEY"<<endl;
                                 }
@@ -1371,7 +1199,7 @@ void navigate(void* _robot)
                             }
                             else
                             {
-                                robot.sendDriveCommand (SEARCHING_SPEED, Create::DRIVE_STRAIGHT);
+                                robot.sendDriveCommand (n_SEARCHING_STRAIGHT_SPEED, Create::DRIVE_STRAIGHT);
                             }
 
                         }
@@ -1411,7 +1239,6 @@ int main ()
 
     g_stateNameMap[NS_SEARCHING] = "NS_SEARCHING";
     g_stateNameMap[NS_PRE_SURVEY] = "NS_PRE_SURVEY";
-    g_stateNameMap[NS_MOVE_AWAY_FROM_WALL] = "NS_MOVE_AWAY_FROM_WALL";
     g_stateNameMap[NS_SURVEY] = "NS_SURVEY";
     g_stateNameMap[NS_FOLLOW_WALL] = "NS_FOLLOW_WALL";
     g_stateNameMap[NS_ROTATE_RIGHT_AND_SEARCH] = "NS_ROTATE_RIGHT_AND_SEARCH";
