@@ -373,7 +373,7 @@ void navigate(void* _robot)
 
     const int SEARCHING_SPEED = 100;
     const int MID_BACKUP_DIST_mm = 10;
-    const int SEARCH_R_WALL_ForwardDist_mm = 120;
+    const int SEARCH_R_WALL_ForwardDist_mm = 60;//120;
     const int NS_SURVEY_SLOT_MAX = 105; // NOTE: at n_SEARCHING_ROTATION_SPEED = 200mmps and 15ms sleep interval, it takes approx 280 slot for a 360 degree rotation/// We will scan max 135 degree, hence our max slot will be approx 105....   Note, ((360/8)*3) = 135
     const int n_FOLLOW_WALL_CLOCK_WISE_RADIOUS = -200;
     const int n_FOLLOW_WALL_ANTICLOCK_WISE_RADIOUS = -1 * n_FOLLOW_WALL_CLOCK_WISE_RADIOUS;
